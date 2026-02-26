@@ -1,0 +1,32 @@
+{
+  "id": "1770282437946",
+  "name": "Розы 2",
+  "createdAt": "2026-02-05T09:07:17.946Z",
+  "lastModified": "2026-02-05T09:07:17.946Z",
+  "flowers": [
+    {
+      "flowerName": "Роза розовая",
+      "flower_type_id": 1,
+      "x": 464,
+      "y": 135,
+      "zIndex": 0,
+      "scale": 0.6,
+      "rotation": 0,
+      "currentAngle": 0,
+      "saturation": 1,
+      "isFlipped": false
+    },
+    {
+      "flowerName": "Роза жёлтая",
+      "flower_type_id": 1,
+      "x": 538,
+      "y": 229,
+      "zIndex": 2,
+      "scale": 0.9499999999999991,
+      "rotation": 0,
+      "currentAngle": 3,
+      "saturation": 1,
+      "isFlipped": false
+    }
+  ]
+}

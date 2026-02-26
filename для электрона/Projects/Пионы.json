@@ -1,0 +1,56 @@
+{
+  "id": "1770282610237",
+  "name": "Пионы",
+  "createdAt": "2026-02-05T09:10:10.237Z",
+  "lastModified": "2026-02-05T09:10:10.237Z",
+  "flowers": [
+    {
+      "flowerName": "Пион жёлтый",
+      "flower_type_id": 4,
+      "x": 628,
+      "y": 182,
+      "zIndex": 0,
+      "scale": 0.6,
+      "rotation": 0,
+      "currentAngle": 3,
+      "saturation": 1,
+      "isFlipped": false
+    },
+    {
+      "flowerName": "Пион винный",
+      "flower_type_id": 4,
+      "x": 456,
+      "y": 203,
+      "zIndex": 1,
+      "scale": 0.6,
+      "rotation": 337.824955273206,
+      "currentAngle": 3,
+      "saturation": 1,
+      "isFlipped": false
+    },
+    {
+      "flowerName": "Пион жёлтый",
+      "flower_type_id": 4,
+      "x": 534,
+      "y": 322,
+      "zIndex": 2,
+      "scale": 0.6,
+      "rotation": 0,
+      "currentAngle": 1,
+      "saturation": 1,
+      "isFlipped": false
+    },
+    {
+      "flowerName": "Пион винный",
+      "flower_type_id": 4,
+      "x": 697,
+      "y": 315,
+      "zIndex": 3,
+      "scale": 0.6,
+      "rotation": 24.564841572788282,
+      "currentAngle": 2,
+      "saturation": 1,
+      "isFlipped": false
+    }
+  ]
+}

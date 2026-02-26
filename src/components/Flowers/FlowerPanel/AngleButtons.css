@@ -1,0 +1,31 @@
+.angle-buttons-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.625rem;
+  margin-bottom: 10px;
+}
+
+.angle-button {
+  border-radius: 0.5rem;
+  border: 0.1rem solid var(--green-color);
+  background-color: white;
+  color: black;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 300;
+  width: 2.5rem;
+  height: 2.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.angle-button:hover {
+  background-color: var(--green-color-transparent-15);
+}
+
+.angle-button.active {
+  background-color: var(--green-color);
+  color: white;
+}

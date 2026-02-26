@@ -1,0 +1,68 @@
+{
+  "id": "1770282462052",
+  "name": "Тюльпаны",
+  "createdAt": "2026-02-05T09:07:42.052Z",
+  "lastModified": "2026-02-05T09:07:42.052Z",
+  "flowers": [
+    {
+      "flowerName": "Тюльпан пастельный",
+      "flower_type_id": 3,
+      "x": 833,
+      "y": 327,
+      "zIndex": 0,
+      "scale": 0.6,
+      "rotation": 0,
+      "currentAngle": 0,
+      "saturation": 1,
+      "isFlipped": false
+    },
+    {
+      "flowerName": "Тюльпан пурпурный",
+      "flower_type_id": 3,
+      "x": 673,
+      "y": 105,
+      "zIndex": 1,
+      "scale": 0.6,
+      "rotation": 0,
+      "currentAngle": 0,
+      "saturation": 1,
+      "isFlipped": false
+    },
+    {
+      "flowerName": "Тюльпан красный",
+      "flower_type_id": 3,
+      "x": 419,
+      "y": 170,
+      "zIndex": 2,
+      "scale": 0.6,
+      "rotation": 0,
+      "currentAngle": 0,
+      "saturation": 1,
+      "isFlipped": false
+    },
+    {
+      "flowerName": "Тюльпан сиреневый",
+      "flower_type_id": 3,
+      "x": 640,
+      "y": 511,
+      "zIndex": 3,
+      "scale": 0.6,
+      "rotation": 0,
+      "currentAngle": 0,
+      "saturation": 1,
+      "isFlipped": false
+    },
+    {
+      "flowerName": "Тюльпан розовый",
+      "flower_type_id": 3,
+      "x": 404,
+      "y": 387,
+      "zIndex": 4,
+      "scale": 0.6,
+      "rotation": 0,
+      "currentAngle": 0,
+      "saturation": 1,
+      "isFlipped": false
+    }
+  ]
+}

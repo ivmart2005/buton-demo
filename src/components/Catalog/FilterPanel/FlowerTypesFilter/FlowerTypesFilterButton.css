@@ -1,0 +1,29 @@
+.flower-types-filter-button {
+  font-size: 0.9rem;
+  font-weight: 300;
+  border: 0.0625rem solid #cccccc;
+  background-color: #e2e3e3;
+  color: #333333;
+  padding: 0.5rem 0rem;
+  border-radius: 100rem;
+  cursor: pointer;
+  transition: 
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+  width: 104%;
+  margin-top: 0.5rem;
+  text-align: center;
+  display: block;
+}
+
+.flower-types-filter-button:hover {
+  background-color: #d1d2d2;
+  border-color: #b3b3b3;
+}
+
+.flower-types-filter-button:active {
+  background-color: var(--green-color);
+  color: white;
+  border-color: var(--green-color);
+}

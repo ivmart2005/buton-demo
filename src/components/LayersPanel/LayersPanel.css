@@ -1,0 +1,46 @@
+.layers-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 15.625rem;
+  height: 100vh;
+  background: white;
+  border-left: 0.0625rem solid #e0e0e0;
+  box-shadow: -0.125rem 0 0.625rem rgba(0, 0, 0, 0.1);
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+}
+
+.layers-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.625rem;
+  padding-top: 0.625rem;
+}
+
+.empty-state {
+  text-align: center;
+  color: #666;
+  padding: 1.25rem;
+  font-size: 0.8125rem;
+  margin-top: 5rem;
+}
+
+.layers-list::-webkit-scrollbar {
+  width: 0.25rem;
+}
+
+.layers-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 0.125rem;
+}
+
+.layers-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 0.125rem;
+}
+
+.layers-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

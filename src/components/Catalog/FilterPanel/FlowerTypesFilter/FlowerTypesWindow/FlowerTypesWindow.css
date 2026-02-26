@@ -1,0 +1,133 @@
+.flower-types-modal-overlay {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flower-types-modal {
+  background: white;
+  padding: 20px;
+  border-radius: 2rem;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.flower-types-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-shrink: 0;
+  padding: 0 6px;
+  gap: 15px;
+}
+
+.flower-types-header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.flower-types-header-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.flower-types-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.flower-types-apply-button {
+  background-color: var(--green-color);
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 100rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.flower-types-apply-button:hover {
+  background-color: var(--green-color-dark-1);
+}
+
+.flower-types-apply-button:active {
+  background-color: var(--green-color-dark-2);
+}
+
+.flower-types-clear-button {
+  color: #666;
+  border: 1px solid #ccc;
+  padding: 7px 15px;
+  border-radius: 10rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.flower-types-clear-button:hover {
+  background-color: #ebebeb;
+  border-color: #999;
+}
+
+.flower-types-clear-button:disabled {
+  cursor: not-allowed;
+}
+
+.flower-types-grid-container {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 5px;
+}
+
+.flower-types-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 15px;
+}
+
+
+.flower-type-card:hover {
+  background: #e7e7e7;
+}
+
+.flower-type-card.selected {
+  border-color: #d7d7d7;
+  background-color: rgb(213, 213, 213);
+}
+
+.flower-type-card-name {
+  font-size: 0.9rem;
+  color: #333;
+  text-align: center;
+  margin-top: 5px;
+}
+
+.flower-types-grid-container {
+  scrollbar-width: 3rem;
+  scrollbar-color: transparent;
+}
+
+.flower-types-grid-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+}

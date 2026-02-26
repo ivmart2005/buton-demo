@@ -1,0 +1,11 @@
+.flower-container {
+  transition: cursor 0.1s ease;
+}
+
+.flower-container:hover {
+  cursor: grab;
+}
+
+.flower-container:active {
+  cursor: grabbing;
+}

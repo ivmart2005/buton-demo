@@ -1,0 +1,32 @@
+{
+  "id": "1769763858528",
+  "name": "Мой букет",
+  "createdAt": "2026-01-30T09:04:18.528Z",
+  "lastModified": "2026-01-30T09:04:18.528Z",
+  "flowers": [
+    {
+      "flowerName": "Роза белая",
+      "flower_type_id": 1,
+      "x": 800,
+      "y": 100,
+      "zIndex": 0,
+      "scale": 0.7,
+      "rotation": 0,
+      "currentAngle": 0,
+      "saturation": 1,
+      "isFlipped": false
+    },
+    {
+      "flowerName": "Роза розовая",
+      "flower_type_id": 1,
+      "x": 522,
+      "y": 122,
+      "zIndex": 1,
+      "scale": 0.7,
+      "rotation": 0,
+      "currentAngle": 0,
+      "saturation": 1,
+      "isFlipped": false
+    }
+  ]
+}

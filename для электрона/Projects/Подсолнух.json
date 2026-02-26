@@ -1,0 +1,32 @@
+{
+  "id": "1770282391191",
+  "name": "Подсолнух",
+  "createdAt": "2026-02-05T09:06:31.191Z",
+  "lastModified": "2026-02-05T09:06:31.191Z",
+  "flowers": [
+    {
+      "flowerName": "Подсолнух",
+      "flower_type_id": 11,
+      "x": 323,
+      "y": 167,
+      "zIndex": 0,
+      "scale": 0.6,
+      "rotation": 0,
+      "currentAngle": 3,
+      "saturation": 1,
+      "isFlipped": false
+    },
+    {
+      "flowerName": "Подсолнух",
+      "flower_type_id": 11,
+      "x": 449,
+      "y": 263,
+      "zIndex": 1,
+      "scale": 0.6,
+      "rotation": 0,
+      "currentAngle": 0,
+      "saturation": 1,
+      "isFlipped": false
+    }
+  ]
+}

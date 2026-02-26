@@ -1,0 +1,103 @@
+.layer-button {
+  display: flex;
+  align-items: center;
+  padding: 0.625rem;
+  margin-bottom: 0.375rem;
+  border: 0.125rem solid rgb(200, 200, 200);
+  border-radius: 0.6rem;
+  background: white;
+  cursor: grab;
+  transition: all 0.2s ease;
+  position: relative;
+  height: 2.3rem;
+}
+
+.layer-button:hover {
+  border-color: var(--green-color);
+}
+
+.layer-button:active {
+  border-color: var(--green-color);
+  transition-duration: 0.05s;
+  cursor: grabbing;
+}
+
+.layer-button.dragging {
+  opacity: 0.5;
+  border-color: var(--green-color-transparent-50);
+}
+
+.layer-button.drag-over {
+  border-color: var(--green-color);
+}
+
+.layer-preview {
+  width: 1.875rem;
+  height: 1.875rem;
+  margin-right: 0.625rem;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  flex-shrink: 0;
+}
+
+.layer-canvas {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.layer-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.layer-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+.delete-layer-btn {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  margin-left: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.delete-layer-btn:hover {
+  opacity: 1;
+}
+
+.delete-layer-btn img {
+  width: 1.1rem;
+  height: 1.1rem;
+  display: block;
+}
+
+.layer-drag-handle {
+  color: #ccc;
+  font-size: 0.875rem;
+  padding: 0.25rem;
+  cursor: grab;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.layer-drag-handle:active {
+  cursor: grabbing;
+}
