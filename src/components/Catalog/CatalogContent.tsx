@@ -26,7 +26,6 @@ const CatalogContent = forwardRef<HTMLDivElement, CatalogContentProps>(
       : localTypesWindowOpen;
 
     const handleTypeSelect = (types: number[]) => { 
-      console.log('Выбран тип цветка:', types);
       setSelectedTypes(types);
       if (onCloseTypesWindow) {
         onCloseTypesWindow();
@@ -53,6 +52,7 @@ const CatalogContent = forwardRef<HTMLDivElement, CatalogContentProps>(
           ref={ref}
           className={`catalog-container ${isOpen ? 'open' : ''}`}
         >
+          {/* панель фильтров слева */}
           <div className="catalog-inner">
             <FilterPanel
               onColorSelectionChange={setSelectedColors} 
@@ -61,7 +61,7 @@ const CatalogContent = forwardRef<HTMLDivElement, CatalogContentProps>(
               isAnyTypeSelected={selectedTypes.length > 0}
               onResetTypes={handleResetTypes}
             />
-            
+            {/* список цветов справа */}
             <div className="flowers-list-wrapper">
               <FlowersList
                 selectedColors={selectedColors} 
@@ -71,7 +71,7 @@ const CatalogContent = forwardRef<HTMLDivElement, CatalogContentProps>(
             </div>
           </div>
         </div>
-        
+        {/* окно типов, появлсяется при клике по кнпоке */}
         <FlowerTypesWindow
           isOpen={typesWindowOpen}
           onClose={() => {

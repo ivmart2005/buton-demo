@@ -1,4 +1,3 @@
-// src/components/Catalog/FilterPanel/FlowerTypesFilter/FlowerTypesWindow/FlowerTypesWindow.tsx
 import { FlowerType } from '@/types/flower_types';
 import { useFlowerTypes } from '@/hooks/useFlowerTypes';
 import { FlowerTypeButton } from './FlowerTypeButton';
@@ -7,7 +6,7 @@ import './FlowerTypesWindow.css';
 
 interface FlowerTypesWindowProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: () => void; // ожидается функция, возвращающая void
   onTypeSelect: (types: number[]) => void;
 }
 
@@ -15,10 +14,10 @@ export const FlowerTypesWindow = ({ isOpen, onClose, onTypeSelect }: FlowerTypes
   const { flowerTypes } = useFlowerTypes();
   const [selectedTypes, setSelectedTypes] = useState<number[]>([]);
   
-  if (!isOpen) return null;
+  if (!isOpen)
+    return null;
 
   const handleConfirm = () => {
-    console.log('Выбранные ID типов цветов:', selectedTypes);
     onTypeSelect(selectedTypes);
   };
 
@@ -32,12 +31,11 @@ export const FlowerTypesWindow = ({ isOpen, onClose, onTypeSelect }: FlowerTypes
 
   const handleClearSelection = () => {
     setSelectedTypes([]);
-    console.log('Выбор сброшен');
   };
 
   return (
     <div className="flower-types-modal-overlay" onClick={onClose}>
-      <div className="flower-types-modal" onClick={e => e.stopPropagation()}>
+      <div className="flower-types-modal" onClick={event => event.stopPropagation()}>
         <div className="flower-types-header">
           <div className="flower-types-header-left">
             <h3 className="flower-types-title">

@@ -29,7 +29,8 @@
 }
 
 .catalog-button-icon.close-sign {
-  transform: rotate(45deg); /* плюс при развороте превращается в крест закрытия */
+  transform: rotate(135deg);
+  /* плюс при развороте превращается в крест закрытия */
 }
 
 .catalog-container {
@@ -116,8 +117,6 @@
   display: flex;
   height: 100%;
 }
-
-
 
 .flowers-list-wrapper {
   flex: 1;

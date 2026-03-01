@@ -4,7 +4,7 @@ import { ColorSegment } from './types';
 
 type ColorWheelProps = {
   segments: ColorSegment[];
-  onSegmentToggle: (colorId: number) => void;
+  onSegmentToggle: (colorId: number) => void; // ожидается функция принимающая число
   size: number;
 };
 
@@ -74,7 +74,7 @@ export const ColorWheel = ({ segments, onSegmentToggle, size }: ColorWheelProps)
         <img 
           ref={imageRef}
           src="./images/interface/itten-wheel.png"
-          alt="Цветовой круг Иттена" 
+          alt="Цветовой круг Иттена"
           className="color-wheel-image"
           style={{ 
             width: size,

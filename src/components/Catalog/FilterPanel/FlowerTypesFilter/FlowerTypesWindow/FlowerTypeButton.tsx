@@ -7,7 +7,7 @@ interface FlowerTypeButtonProps {
     picture: string;
   };
   isSelected: boolean;
-  onClick: () => void;
+  onClick: () => void; // ожидается функция, возвращающая void
 }
 
 export const FlowerTypeButton = ({ type, isSelected, onClick }: FlowerTypeButtonProps) => {
@@ -20,9 +20,6 @@ export const FlowerTypeButton = ({ type, isSelected, onClick }: FlowerTypeButton
         src={type.picture} 
         alt={type.name}
         className="flower-type-button-image"
-        onError={(e) => {
-          (e.target as HTMLImageElement).src = './images/flowers/mock-flower-type.png';
-        }}
       />
       <span className="flower-type-button-name">
         {type.name}

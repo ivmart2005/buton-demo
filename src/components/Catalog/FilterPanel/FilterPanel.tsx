@@ -3,7 +3,7 @@ import { SearchInput } from './SearchInput';
 import { ColorWheel } from './ColorWheel';
 import { ColorWheelControls } from './ColorWheelControls';
 import { ColorSegment } from './types';
-import { FlowerTypesFilterButton } from './FlowerTypesFilter/FlowerTypesFilterButton';
+import { FlowerTypesFilterButton } from './FlowerTypesFilter';
 import './FilterPanel.css';
 
 interface FilterPanelProps {
@@ -68,34 +68,34 @@ export const FilterPanel = ({
       </div>
       
       <div className="filter-panel-content">
+        {/* поисковая строка */}
         <SearchInput onSearch={onSearch} />
-        
-        <ColorWheel 
+        <ColorWheel
           segments={segments}
           onSegmentToggle={toggleSegment}
           size={330}
         />
-        
-        <ColorWheelControls 
+        {/* 2 кнопки фильтров под цветом под кругом Иттена */}
+        <ColorWheelControls
           onSelectAll={selectAll}
           onDeselectAll={deselectAll}
         />
-
-        { /*<div className="types-filter-container">
-          <FlowerTypesFilterButton 
+        {/* кнопка открытия фильтров */}
+        <div className="types-filter-container">
+          <FlowerTypesFilterButton
             onClick={onOpenTypesWindow} 
             isShrunk={isAnyTypeSelected} 
           />
-          
+          {/* если выбраны фильтры по типам, то появляется кнопка "сбросить" */}
           {isAnyTypeSelected && (
-            <button 
-              className="btn-reset-types-quick" 
+            <button
+              className="btn-reset-types-quick"
               onClick={onResetTypes}
             >
               Сбросить
             </button>
           )}
-        </div> */}
+        </div>
       </div>
     </div>
   );

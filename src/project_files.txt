@@ -1577,9 +1577,6 @@ export const FlowerTypeButton = ({ type, isSelected, onClick }: FlowerTypeButton
         src={type.picture} 
         alt={type.name}
         className="flower-type-button-image"
-        onError={(e) => {
-          (e.target as HTMLImageElement).src = './images/flowers/mock-flower-type.png';
-        }}
       />
       <span className="flower-type-button-name">
         {type.name}
@@ -1728,7 +1725,6 @@ export const FlowerTypeButton = ({ type, isSelected, onClick }: FlowerTypeButton
 
 Файл: components\Catalog\FilterPanel\FlowerTypesFilter\FlowerTypesWindow\FlowerTypesWindow.tsx
 ================================================================================
-// src/components/Catalog/FilterPanel/FlowerTypesFilter/FlowerTypesWindow/FlowerTypesWindow.tsx
 import { FlowerType } from '@/types/flower_types';
 import { useFlowerTypes } from '@/hooks/useFlowerTypes';
 import { FlowerTypeButton } from './FlowerTypeButton';
@@ -1745,10 +1741,10 @@ export const FlowerTypesWindow = ({ isOpen, onClose, onTypeSelect }: FlowerTypes
   const { flowerTypes } = useFlowerTypes();
   const [selectedTypes, setSelectedTypes] = useState<number[]>([]);
   
-  if (!isOpen) return null;
+  if (!isOpen)
+    return null;
 
   const handleConfirm = () => {
-    console.log('Выбранные ID типов цветов:', selectedTypes);
     onTypeSelect(selectedTypes);
   };
 
@@ -3924,7 +3920,7 @@ useEffect(() => { // рисование иконки цветка на кноп�
         onMouseDown={(e) => e.stopPropagation()} // предотвращаем начало драга при клике на иконку
         title="Удалить цветок"
       >
-        <img src="/images/interface/rubish-bin-gray.svg" alt="Delete" />
+        <img src="./images/interface/rubish-bin-gray.svg" alt="Delete" />
       </button>
     </div>
   );
@@ -4500,7 +4496,7 @@ export const BouquetPreview = ({ filePath, size = 180 }: BouquetPreviewProps) =>
   }, [bouquetData, size]);
 
   if (isLoading || hasError) {
-    return <div className="file-preview-placeholder">{hasError ? 'error' : 'no error'}</div>;
+    return <div className="file-preview-placeholder">{hasError ? 'Пустой букет' : ''}</div>;
   }
 
   return (

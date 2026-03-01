@@ -7,12 +7,10 @@ interface BreadcrumbsProps {
 }
 
 export const Breadcrumbs = ({ path, onNavigate, onGoBack }: BreadcrumbsProps) => {
-  // Разбиваем путь на части
   const parts = path === '/' ? [] : path.split('/').filter(p => p);
 
   return (
     <div className="breadcrumbs">
-      {/* Кнопка "Назад" */}
       <button 
         className="breadcrumb-back"
         onClick={onGoBack}
@@ -21,7 +19,6 @@ export const Breadcrumbs = ({ path, onNavigate, onGoBack }: BreadcrumbsProps) =>
         ←
       </button>
       
-      {/* Корень */}
       <button 
         className="breadcrumb-item"
         onClick={() => onNavigate('')}
@@ -29,7 +26,6 @@ export const Breadcrumbs = ({ path, onNavigate, onGoBack }: BreadcrumbsProps) =>
         Projects
       </button>
       
-      {/* Остальные части пути */}
       {parts.map((part, index) => {
         const currentPath = parts.slice(0, index + 1).join('/');
         return (

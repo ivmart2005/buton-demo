@@ -23,7 +23,6 @@ export const FlowersList = ({
   selectedTypes = []
 }: FlowersListProps) => {
   const [allFlowers, setAllFlowers] = useState<FlowerData[]>([]);
-
   const hardcodedFlowers: FlowerData[] = [
     { id: '0', title: 'Роза розовая', x: 0, y: 0, colorId: 5, flower_type_id: 1 },
     { id: '1', title: 'Роза жёлтая', x: 100, y: 0, colorId: 1, flower_type_id: 1 },
@@ -36,8 +35,6 @@ export const FlowersList = ({
       if ((window as any).electronAPI) {
         try {
           const flowersFromDB = await (window as any).electronAPI.getFlowers();
-          
-          
           const transformedFlowers = flowersFromDB.map((flower: any, index: number) => ({
             id: flower.id?.toString() || index.toString(),
             title: flower.title || `Цветок ${index}`,
@@ -46,10 +43,10 @@ export const FlowersList = ({
             colorId: flower.colorId || 1,
             flower_type_id: flower.flower_type_id || 1
           }));
-          
           setAllFlowers(transformedFlowers);
-        } catch (error) {
-          console.error('DB error:', error);
+        }
+        catch (error) {
+          console.error('Ошибка получения цветов:', error);
           setAllFlowers(hardcodedFlowers);
         }
       } else {
@@ -59,15 +56,12 @@ export const FlowersList = ({
     loadFlowers();
   }, []);
 
-
-
   const filteredFlowers = allFlowers.filter(flower => {
     const matchesColor = flower.colorId === 13 || selectedColors.includes(flower.colorId);
     const matchesSearch = searchQuery === '' ||
       flower.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = selectedTypes.length === 0 || 
       selectedTypes.includes(flower.flower_type_id);
-    
     return matchesColor && matchesSearch && matchesType;
   });
 

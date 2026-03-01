@@ -33,7 +33,7 @@ export const Catalog = forwardRef<{ open: () => void }, CatalogProps>(
         // клик на окно типов цветов (исключение)
         if (target.closest('.flower-types-modal-overlay'))
           return;
-
+        // ещё исключения
         if (target.closest('.projects-window-container') || 
             target.closest('.projects-explorer') || 
             target.closest('.save-bouquet-modal') ||

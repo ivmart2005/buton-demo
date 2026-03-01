@@ -11,6 +11,7 @@ interface FlowerButtonProps {
   onClick: () => void;
 }
 
+// кнопка в каталоге
 export const FlowerButton = ({ id, title, x, y, colorId, flower_type_id, onClick }: FlowerButtonProps) => {
   const { loadFlower } = useFlowersContext();
   const handleClick = () => {

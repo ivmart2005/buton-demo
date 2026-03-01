@@ -32,7 +32,7 @@ export function Canvas() {
       onDoubleClick={handleDoubleClick}
     >
       {/* кнопки контроля букетов */}
-      {/* <BouquetControls /> */}
+      <BouquetControls />
       {/* каталог-библиотека с цветами */}
       <Catalog ref={catalogRef} />
       {/* панель слоёв слева */}
