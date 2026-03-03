@@ -14,7 +14,7 @@ interface RMB_ControlsProps {
   onClose: () => void;
   onRenameRequest: (path: string) => void; 
   onUpdate: () => void; 
-  clipboard: { path: string, action: 'copy' | 'cut' } | null;
+  clipboard: { path: string, action: 'copy' | 'cut' } | null; // буфер обмена - хранит пути скопированного/вырезанного файла
   onCopy: (path: string) => void;
   onCut: (path: string) => void;
   onClearClipboard: () => void;
@@ -24,18 +24,16 @@ export const RMB_Controls = ({
   x, y, target, currentPath, onClose, onRenameRequest, onUpdate,
   clipboard, onCopy, onCut, onClearClipboard 
 }: RMB_ControlsProps) => {
-  
   const isItem = target.type === 'file' || target.type === 'folder';
-
   const handleCreateFile = async () => {
     try {
       const newPath = await window.electronAPI.createNewBouquet(currentPath);
       if (newPath) {
         onUpdate();
-        setTimeout(() => onRenameRequest(newPath), 50); 
+        setTimeout(() => onRenameRequest(newPath), 50);
       }
-    } catch (err) {
-      console.error("Ошибка при создании букета:", err);
+    } catch (error) {
+      console.error("RMB_controls.tsx - handleCreateFile - ошибка при создании букета:", error);
     } finally {
       onClose();
     }
@@ -45,11 +43,11 @@ export const RMB_Controls = ({
     try {
       const newPath = await window.electronAPI.createNewFolder(currentPath);
       if (newPath) {
-        onUpdate();
-        setTimeout(() => onRenameRequest(newPath), 50);
+        await onUpdate();
+        setTimeout(() => onRenameRequest(newPath), 100);
       }
-    } catch (err) {
-      console.error("Ошибка при создании папки:", err);
+    } catch (error) {
+      console.error("RMB_controls.tsx - handleCreateFolder - ошибка при создании папки:", error);
     } finally {
       onClose();
     }
@@ -69,7 +67,8 @@ export const RMB_Controls = ({
   };
 
   const handlePasteClick = async () => {
-    if (!clipboard) return;
+    if (!clipboard)
+      return;
 
     try {
       await window.electronAPI.pasteItem({
@@ -77,26 +76,26 @@ export const RMB_Controls = ({
         destDir: currentPath,
         action: clipboard.action
       });
-
       if (clipboard.action === 'cut') {
         onClearClipboard();
       }
-      
       onUpdate();
     } catch (err) {
-      console.error("Ошибка вставки:", err);
+      console.error("RMB_controls.tsx - handlePasteClick - ошибка вставки:", err);
     } finally {
       onClose();
     }
   };
 
   const handleDeleteClick = async () => {
-    if (!target.path) return;
+    if (!target.path)
+      return;
     try {
       const success = await window.electronAPI.deleteProjectItem(target.path);
-      if (success) onUpdate();
+      if (success)
+        onUpdate();
     } catch (err) {
-      console.error("Ошибка при удалении:", err);
+      console.error("RMB_controls.tsx - handleDeleteClick - ошибка при удалении:", err);
     } finally {
       onClose();
     }
@@ -112,13 +111,13 @@ export const RMB_Controls = ({
       <div 
         className="rmb-overlay" 
         onClick={onClose} 
-        onContextMenu={(e) => { e.preventDefault(); onClose(); }} 
+        onContextMenu={(event) => { event.preventDefault(); onClose(); }} 
       />
       
       <div 
         className="rmb-menu" 
         style={{ top: y, left: x }}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
       >
         {isItem && (
           <>

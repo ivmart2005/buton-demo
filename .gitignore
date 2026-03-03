@@ -31,3 +31,12 @@ out
 *.db
 *.rar
 *.zip
+
+electron/
+для электрона/
+flowers.db
+src/get_files.py
+src/project_files.txt
+src/components/ProjectsWindow/
+src/components/Modal/
+.gitignore

@@ -10,35 +10,37 @@ export const useFlowerInteractions = (
 ) => {
   const [showPanel, setShowPanel] = useState(false);
 
-  const handleContextMenu = (e: React.MouseEvent) => {
+  const handleContextMenu = (event: React.MouseEvent) => {
     if (isGlobalDrag || isRotating) return;
-    e.preventDefault();
+    event.preventDefault();
     
     for (let i = allFlowers.length - 1; i >= 0; i--) {
       const currentFlower = allFlowers[i];
       const currentCanvas = document.querySelector(`[data-flower-id="${currentFlower.id}"]`) as HTMLCanvasElement;
-      if (!currentCanvas) continue;
-
+      if (!currentCanvas)
+        continue;
       const rect = currentCanvas.getBoundingClientRect();
-      const ctx = currentCanvas.getContext('2d', { willReadFrequently: true });
-      if (!ctx) continue;
-
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
+      const context = currentCanvas.getContext('2d', { willReadFrequently: true });
+      if (!context)
+        continue;
+      // рассчёт абсолютных координат клика
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      // поиск цветка под мышью сверху вниз
       if (x >= 0 && y >= 0 && x < rect.width && y < rect.height) {
-        const pixel = ctx.getImageData(x, y, 1, 1).data;
+        // проверка прозрачности (можно перетаскивать только за полупрозрачный/непрозрачный кусок картинки)
+        const pixel = context.getImageData(x, y, 1, 1).data;
         if (pixel[3] > 10) {
           if (currentFlower.id === flower.id) {
-            setShowPanel(true);
+            setShowPanel(true); // панель редактирования станвоится доступной
           } else {
             currentCanvas.dispatchEvent(new MouseEvent('contextmenu', {
-              clientX: e.clientX,
-              clientY: e.clientY,
+              clientX: event.clientX,
+              clientY: event.clientY,
               bubbles: true
             }));
           }
-          e.stopPropagation();
+          event.stopPropagation();
           return;
         }
       }
@@ -47,50 +49,48 @@ export const useFlowerInteractions = (
     setShowPanel(false);
   };
 
-  const handleWheel = (e: React.WheelEvent, showPanel: boolean) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (showPanel && !(e.target as HTMLElement).closest('[data-rotation-area]')) {
-      const delta = e.deltaY > 0 ? -0.05 : 0.05;
-      const newScale = Math.max(0.3, Math.min(2.0, flower.scale + delta));
+  // зум при открытой панели редактирования наводкой на цветок
+  const handleWheel = (event: React.WheelEvent, showPanel: boolean) => {
+    event.preventDefault();
+    event.stopPropagation();
+    // обновление размеров
+    if (showPanel && !(event.target as HTMLElement).closest('[data-rotation-area]')) {
+      const delta = event.deltaY > 0 ? -0.05 : 0.05; // от себя - увеличение. на себя - уменьшение
+      const newScale = Math.max(0.3, Math.min(3.0, flower.scale + delta));
       updateFlower(flower.id, { scale: newScale });
       return;
     }
-
-    const elements = document.elementsFromPoint(e.clientX, e.clientY);
+    // обработка нижних цветов
+    const elements = document.elementsFromPoint(event.clientX, event.clientY);
     const lowerFlowers = elements.filter(el => 
       el.hasAttribute('data-flower-id') && 
       el.getAttribute('data-flower-id') !== flower.id
     );
-    
     if (lowerFlowers.length > 0) {
       const lowerFlower = lowerFlowers[0] as HTMLElement;
       lowerFlower.dispatchEvent(new WheelEvent('wheel', {
-        clientX: e.clientX,
-        clientY: e.clientY,
-        deltaY: e.deltaY,
+        clientX: event.clientX,
+        clientY: event.clientY,
+        deltaY: event.deltaY,
         bubbles: true
       }));
     }
   };
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent) => {
       const panel = document.querySelector(`[data-flower-panel="${flower.id}"]`);
       const outline = document.querySelector(`[data-outline-id="${flower.id}"]`);
       const canvas = document.querySelector(`[data-flower-id="${flower.id}"]`);
-      
-      const target = e.target as Node;
+      const target = event.target as Node;
       if (
-        (panel && !panel.contains(target)) && 
-        (!outline || !outline.contains(target)) &&
-        (!canvas || !canvas.contains(target))
+        (panel && !panel.contains(target)) && // если клик по панели
+        (!outline || !outline.contains(target)) && // если клик не по границе
+        (!canvas || !canvas.contains(target)) // если клик не по холсту
       ) {
-        setShowPanel(false);
+        setShowPanel(false); // не показывать панель редактирования
       }
     };
-
     if (showPanel) {
       document.addEventListener('mousedown', handleClickOutside);
     }

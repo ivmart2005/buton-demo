@@ -26,7 +26,7 @@ function createWindow() {
     : 'dist/index.html';  
   mainWindow.loadFile(indexPath);
   mainWindow.once('ready-to-show', () => mainWindow.show());
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 }
 
 // обработчики

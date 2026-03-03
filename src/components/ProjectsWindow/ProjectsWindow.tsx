@@ -17,16 +17,15 @@ export const ProjectsWindow = ({ onClose, mode = 'load' }: ProjectsWindowProps) 
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSaveBouquet = async () => {
-    if (!fileName.trim()) return;
+    if (!fileName.trim())
+      return;
     setIsSaving(true);
-    console.log("!!! ProjectsWindow: Сохранение файла:", fileName);
 
     try {
       if (!window.electronAPI?.saveBouquetToPath) {
         onClose();
         return;
       }
-
       const flowersDataToSave = flowers.map(flower => ({
         flowerName: flower.name,
         flower_type_id: (flower as any).flower_type_id || 1,
@@ -39,17 +38,13 @@ export const ProjectsWindow = ({ onClose, mode = 'load' }: ProjectsWindowProps) 
         saturation: (flower as any).saturation || 1.0,
         isFlipped: (flower as any).isFlipped || false
       }));
-
       let filePath = currentPath && currentPath !== '/' 
-        ? `Projects/${currentPath}/${fileName}.json` 
-        : `Projects/${fileName}.json`;
-
+        ? `Projects/${currentPath}/${fileName}.json` // не в корне
+        : `Projects/${fileName}.json`; // в корне
       await window.electronAPI.saveBouquetToPath({
         flowers: flowersDataToSave,
         filePath: filePath
       });
-
-      console.log("!!! ProjectsWindow: Успешно сохранено. Путь:", filePath);
       setCurrentProject({
         name: `${fileName}.json`,
         path: filePath,
@@ -58,8 +53,7 @@ export const ProjectsWindow = ({ onClose, mode = 'load' }: ProjectsWindowProps) 
 
       onClose();
     } catch (error: any) {
-      console.error("!!! ProjectsWindow ERROR:", error);
-      alert("Ошибка при сохранении: " + error.message);
+      console.error("ProjectsWindow ошибка сохранения:", error);
     } finally {
       setIsSaving(false);
     }
@@ -70,9 +64,9 @@ export const ProjectsWindow = ({ onClose, mode = 'load' }: ProjectsWindowProps) 
   return (
     <div 
       className="projects-window-container"
-      onMouseDown={(e) => e.stopPropagation()}
-      onClick={(e) => e.stopPropagation()}
-      onDoubleClick={(e) => e.stopPropagation()}
+      onMouseDown={(event) => event.stopPropagation()}
+      onClick={(event) => event.stopPropagation()}
+      onDoubleClick={(event) => event.stopPropagation()}
     >
       <div className="projects-window-header">
         <div className="header-content">
@@ -106,14 +100,14 @@ export const ProjectsWindow = ({ onClose, mode = 'load' }: ProjectsWindowProps) 
                 autoFocus
                 placeholder="Введите название"
                 value={fileName}
-                onChange={(e) => setFileName(e.target.value)}
+                onChange={(event) => setFileName(event.target.value)}
                 className="file-name-input"
                 disabled={isSaving}
               />
             </div>
             <button 
               className="save-action-button"
-              onClick={(e) => { e.stopPropagation(); handleSaveBouquet(); }}
+              onClick={(event) => { event.stopPropagation(); handleSaveBouquet(); }}
               disabled={!fileName.trim() || isSaving}
             >
               {isSaving ? 'Сохранение...' : 'Сохранить букет'}

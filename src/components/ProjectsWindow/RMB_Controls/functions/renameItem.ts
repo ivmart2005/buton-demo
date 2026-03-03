@@ -1,5 +1,6 @@
 export const renameItem = async (oldPath: string, newName: string): Promise<boolean> => {
-  if (!newName || newName.trim() === "") return false;
+  if (!newName || newName.trim() === "")
+    return false;
 
   try {
     const result = await window.electronAPI.renameProjectItem(oldPath, newName);

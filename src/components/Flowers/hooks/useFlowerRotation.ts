@@ -10,42 +10,38 @@ export const useFlowerRotation = (
   const [isRotating, setIsRotating] = useState(false);
   const [rotationOffset, setRotationOffset] = useState(0);
 
-  const handleRotationStart = (e: React.MouseEvent) => {
-    if (isGlobalDrag) return;
-    
+  const handleRotationStart = (event: React.MouseEvent) => {
+    if (isGlobalDrag)
+      return;
     setIsRotating(true);
-    e.preventDefault();
-    e.stopPropagation();
-    
+    event.preventDefault();
+    event.stopPropagation();
     const rect = canvasRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    
+    if (!rect)
+      return;
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    
     const startAngle = Math.atan2(
-      e.clientY - centerY,
-      e.clientX - centerX
+      event.clientY - centerY,
+      event.clientX - centerX
     ) * (180 / Math.PI);
-    
     setRotationOffset(startAngle - flower.rotation);
   };
 
   useEffect(() => {
-    if (!isRotating) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
+    if (!isRotating)
+      return;
+    
+    const handleMouseMove = (event: MouseEvent) => {
       const rect = canvasRef.current?.getBoundingClientRect();
-      if (!rect) return;
-
+      if (!rect)
+        return;
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      
       const currentAngle = Math.atan2(
-        e.clientY - centerY,
-        e.clientX - centerX
+        event.clientY - centerY,
+        event.clientX - centerX
       ) * (180 / Math.PI);
-      
       const newRotation = (currentAngle - rotationOffset + 360) % 360;
       updateFlower(flower.id, { rotation: newRotation });
     };

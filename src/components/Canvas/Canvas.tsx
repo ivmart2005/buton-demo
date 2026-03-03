@@ -19,7 +19,7 @@ export function Canvas() {
   // управление открытием и закрытием каталога
   const catalogRef = useRef<{ open: () => void }>(null);
   // двойной клик открывает каталог цветов
-  const handleDoubleClick = (e: React.MouseEvent) => {
+  const handleDoubleClick = (event: React.MouseEvent) => {
     if (catalogRef.current) {
       catalogRef.current.open();
     }
@@ -32,7 +32,7 @@ export function Canvas() {
       onDoubleClick={handleDoubleClick}
     >
       {/* кнопки контроля букетов */}
-      <BouquetControls />
+      {window.electronAPI ? (<BouquetControls/>) : (null)}
       {/* каталог-библиотека с цветами */}
       <Catalog ref={catalogRef} />
       {/* панель слоёв слева */}

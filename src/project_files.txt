@@ -233,7 +233,7 @@ function createWindow() {
     : 'dist/index.html';  
   mainWindow.loadFile(indexPath);
   mainWindow.once('ready-to-show', () => mainWindow.show());
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 }
 
 // обработчики
@@ -376,50 +376,28 @@ export const BouquetControls = () => {
   const [showProjects, setShowProjects] = useState(false);
   const [projectsMode, setProjectsMode] = useState<'load' | 'save'>('load');
   const { isOpen, open, close } = useModal();
-
   const [pendingAction, setPendingAction] = useState<'new' | 'load' | null>(null);
 
   useEffect(() => {
     const handleBouquetLoaded = (event: CustomEvent) => {
-      
-      if (event.detail && event.detail.flowers) {
-        setFlowers(event.detail.flowers);
+      if (event.detail && event.detail.flowers) { // если поступил полный проект
+        setFlowers(event.detail.flowers); // отрисовка цветов
         if (event.detail.project) {
           setCurrentProject(event.detail.project);
-          setIsDirty(false); 
+          setIsDirty(false);
         }
-      } 
-      else if (Array.isArray(event.detail)) {
+      }
+      else if (Array.isArray(event.detail)) { // пустой букет
         setFlowers(event.detail);
       }
     };
-
     window.addEventListener('bouquet-loaded', handleBouquetLoaded as EventListener);
-    
-    const checkLoadedBouquet = () => {
-      const loaded = (window as any).__loadedBouquet;
-      if (loaded) {
-        if (loaded.flowers) {
-          setFlowers(loaded.flowers);
-          if (loaded.project) {
-            setCurrentProject(loaded.project);
-            setIsDirty(false);
-          }
-        } else if (Array.isArray(loaded)) {
-          setFlowers(loaded);
-        }
-        delete (window as any).__loadedBouquet;
-      }
-    };
-    
-    const interval = setInterval(checkLoadedBouquet, 1000);
-    
     return () => {
       window.removeEventListener('bouquet-loaded', handleBouquetLoaded as EventListener);
-      clearInterval(interval);
     };
   }, [setFlowers, setCurrentProject, setIsDirty]);
 
+  // сохраение с именем
   const handleSaveAs = () => {
     setProjectsMode('save');
     setShowProjects(true);
@@ -427,12 +405,13 @@ export const BouquetControls = () => {
     setPendingAction(null);
   };
 
+  // опция "не сохранять"
   const handleDiscard = () => {    
     resetProject ? resetProject() : (() => {
       setFlowers([]);
       setCurrentProject(null);
       setIsDirty(false);
-    })();
+    }) ();
 
     if (pendingAction === 'load') {
       setProjectsMode('load');
@@ -443,6 +422,7 @@ export const BouquetControls = () => {
     close();
   };
 
+  // кнопка "создать новый букет"
   const handleNewBouquetClick = () => {
     if (isDirty) {
       setPendingAction('new');
@@ -456,6 +436,7 @@ export const BouquetControls = () => {
     }
   };
 
+  // сохранение по пути
   const handleDirectSave = async () => {
     if (currentProject && currentProject.path) {
       try {
@@ -471,32 +452,28 @@ export const BouquetControls = () => {
           saturation: (flower as any).saturation ?? 1.0,
           isFlipped: (flower as any).isFlipped ?? false
         }));
-
         await window.electronAPI.saveBouquetToPath({
           filePath: currentProject.path,
           flowers: flowersToSave as any
         });
-        
         setIsDirty(false);
-
         if (pendingAction === 'new') {
            resetProject ? resetProject() : (() => { setFlowers([]); setCurrentProject(null); })();
         } else if (pendingAction === 'load') {
            setProjectsMode('load');
            setShowProjects(true);
         }
-
         setPendingAction(null);
         close();
       } catch (error: any) {
-        console.error("!!! BouquetControls: Ошибка тихого сохранения:", error);
+        console.error("BouquetControls - ошибка тихого сохранения:", error);
         handleSaveAs(); 
       }
     } else {
       handleSaveAs();
     }
   };
-
+  // клик на "Мои проекты"
   const handleMyProjectsClick = () => {
     if (isDirty) {
       setPendingAction('load');
@@ -645,7 +622,8 @@ export function Canvas() {
 }
 
 .catalog-button-icon.close-sign {
-  transform: rotate(45deg); /* плюс при развороте превращается в крест закрытия */
+  transform: rotate(135deg);
+  /* плюс при развороте превращается в крест закрытия */
 }
 
 .catalog-container {
@@ -733,8 +711,6 @@ export function Canvas() {
   height: 100%;
 }
 
-
-
 .flowers-list-wrapper {
   flex: 1;
   height: 100%;
@@ -779,7 +755,7 @@ export const Catalog = forwardRef<{ open: () => void }, CatalogProps>(
         // клик на окно типов цветов (исключение)
         if (target.closest('.flower-types-modal-overlay'))
           return;
-
+        // ещё исключения
         if (target.closest('.projects-window-container') || 
             target.closest('.projects-explorer') || 
             target.closest('.save-bouquet-modal') ||
@@ -877,7 +853,6 @@ const CatalogContent = forwardRef<HTMLDivElement, CatalogContentProps>(
       : localTypesWindowOpen;
 
     const handleTypeSelect = (types: number[]) => { 
-      console.log('Выбран тип цветка:', types);
       setSelectedTypes(types);
       if (onCloseTypesWindow) {
         onCloseTypesWindow();
@@ -904,6 +879,7 @@ const CatalogContent = forwardRef<HTMLDivElement, CatalogContentProps>(
           ref={ref}
           className={`catalog-container ${isOpen ? 'open' : ''}`}
         >
+          {/* панель фильтров слева */}
           <div className="catalog-inner">
             <FilterPanel
               onColorSelectionChange={setSelectedColors} 
@@ -912,7 +888,7 @@ const CatalogContent = forwardRef<HTMLDivElement, CatalogContentProps>(
               isAnyTypeSelected={selectedTypes.length > 0}
               onResetTypes={handleResetTypes}
             />
-            
+            {/* список цветов справа */}
             <div className="flowers-list-wrapper">
               <FlowersList
                 selectedColors={selectedColors} 
@@ -922,7 +898,7 @@ const CatalogContent = forwardRef<HTMLDivElement, CatalogContentProps>(
             </div>
           </div>
         </div>
-        
+        {/* окно типов, появлсяется при клике по кнпоке */}
         <FlowerTypesWindow
           isOpen={typesWindowOpen}
           onClose={() => {
@@ -997,7 +973,7 @@ import { ColorSegment } from './types';
 
 type ColorWheelProps = {
   segments: ColorSegment[];
-  onSegmentToggle: (colorId: number) => void;
+  onSegmentToggle: (colorId: number) => void; // ожидается функция принимающая число
   size: number;
 };
 
@@ -1067,7 +1043,7 @@ export const ColorWheel = ({ segments, onSegmentToggle, size }: ColorWheelProps)
         <img 
           ref={imageRef}
           src="./images/interface/itten-wheel.png"
-          alt="Цветовой круг Иттена" 
+          alt="Цветовой круг Иттена"
           className="color-wheel-image"
           style={{ 
             width: size,
@@ -1336,7 +1312,7 @@ import { SearchInput } from './SearchInput';
 import { ColorWheel } from './ColorWheel';
 import { ColorWheelControls } from './ColorWheelControls';
 import { ColorSegment } from './types';
-import { FlowerTypesFilterButton } from './FlowerTypesFilter/FlowerTypesFilterButton';
+import { FlowerTypesFilterButton } from './FlowerTypesFilter';
 import './FilterPanel.css';
 
 interface FilterPanelProps {
@@ -1401,28 +1377,28 @@ export const FilterPanel = ({
       </div>
       
       <div className="filter-panel-content">
+        {/* поисковая строка */}
         <SearchInput onSearch={onSearch} />
-        
-        <ColorWheel 
+        <ColorWheel
           segments={segments}
           onSegmentToggle={toggleSegment}
           size={330}
         />
-        
-        <ColorWheelControls 
+        {/* 2 кнопки фильтров под цветом под кругом Иттена */}
+        <ColorWheelControls
           onSelectAll={selectAll}
           onDeselectAll={deselectAll}
         />
-
+        {/* кнопка открытия фильтров */}
         <div className="types-filter-container">
-          <FlowerTypesFilterButton 
+          <FlowerTypesFilterButton
             onClick={onOpenTypesWindow} 
             isShrunk={isAnyTypeSelected} 
           />
-          
+          {/* если выбраны фильтры по типам, то появляется кнопка "сбросить" */}
           {isAnyTypeSelected && (
-            <button 
-              className="btn-reset-types-quick" 
+            <button
+              className="btn-reset-types-quick"
               onClick={onResetTypes}
             >
               Сбросить
@@ -1472,7 +1448,8 @@ export const FilterPanel = ({
 ================================================================================
 interface FlowerTypesFilterButtonProps {
   onClick: () => void;
-  isShrunk?: boolean;
+  isShrunk?: boolean; // если isShrunk === true,
+  // в FilterPanel.tsx справа от кнопки "Фильтрация по фильтрам" рисуется кнопка "Сбросить"
 }
 
 export const FlowerTypesFilterButton = ({ onClick, isShrunk }: FlowerTypesFilterButtonProps) => {
@@ -1481,6 +1458,7 @@ export const FlowerTypesFilterButton = ({ onClick, isShrunk }: FlowerTypesFilter
   //if (!isElectron) {
   //  return null;
   //}
+
   return (
     <button
       className={`flower-types-filter-btn ${isShrunk ? 'is-shrunk' : ''}`} 
@@ -1564,7 +1542,7 @@ interface FlowerTypeButtonProps {
     picture: string;
   };
   isSelected: boolean;
-  onClick: () => void;
+  onClick: () => void; // ожидается функция, возвращающая void
 }
 
 export const FlowerTypeButton = ({ type, isSelected, onClick }: FlowerTypeButtonProps) => {
@@ -1733,7 +1711,7 @@ import './FlowerTypesWindow.css';
 
 interface FlowerTypesWindowProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: () => void; // ожидается функция, возвращающая void
   onTypeSelect: (types: number[]) => void;
 }
 
@@ -1758,12 +1736,11 @@ export const FlowerTypesWindow = ({ isOpen, onClose, onTypeSelect }: FlowerTypes
 
   const handleClearSelection = () => {
     setSelectedTypes([]);
-    console.log('Выбор сброшен');
   };
 
   return (
     <div className="flower-types-modal-overlay" onClick={onClose}>
-      <div className="flower-types-modal" onClick={e => e.stopPropagation()}>
+      <div className="flower-types-modal" onClick={event => event.stopPropagation()}>
         <div className="flower-types-header">
           <div className="flower-types-header-left">
             <h3 className="flower-types-title">
@@ -1872,11 +1849,6 @@ export interface FilterPanelProps {
 }
 --------------------------------------------------------------------------------
 
-Файл: components\Catalog\FilterPanel\useColorFilter.ts
-================================================================================
-
---------------------------------------------------------------------------------
-
 Файл: components\Catalog\FlowersList\FlowerButton.css
 ================================================================================
 .flower-button-container {
@@ -1893,12 +1865,12 @@ export interface FilterPanelProps {
 }
 
 .flower-button-container:hover {
-  border-color: #e2e3e3;
+  border-color: #e2e2e2;
   box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
 }
 
 .flower-title {
-  font-size: 0.875rem;
+  font-size: 14px;
   font-weight: 400;
   color: #333;
   text-align: center;
@@ -1929,6 +1901,7 @@ interface FlowerButtonProps {
   onClick: () => void;
 }
 
+// кнопка в каталоге
 export const FlowerButton = ({ id, title, x, y, colorId, flower_type_id, onClick }: FlowerButtonProps) => {
   const { loadFlower } = useFlowersContext();
   const handleClick = () => {
@@ -1999,7 +1972,7 @@ export const FlowerButton = ({ id, title, x, y, colorId, flower_type_id, onClick
 .flower-title {
   font-size: 14px;
   text-align: center;
-  color: #232323;
+  color: #252525;
   max-width: 200px;
   word-break: break-word;
 }
@@ -2057,7 +2030,6 @@ export const FlowersList = ({
   selectedTypes = []
 }: FlowersListProps) => {
   const [allFlowers, setAllFlowers] = useState<FlowerData[]>([]);
-
   const hardcodedFlowers: FlowerData[] = [
     { id: '0', title: 'Роза розовая', x: 0, y: 0, colorId: 5, flower_type_id: 1 },
     { id: '1', title: 'Роза жёлтая', x: 100, y: 0, colorId: 1, flower_type_id: 1 },
@@ -2070,8 +2042,6 @@ export const FlowersList = ({
       if ((window as any).electronAPI) {
         try {
           const flowersFromDB = await (window as any).electronAPI.getFlowers();
-          
-          
           const transformedFlowers = flowersFromDB.map((flower: any, index: number) => ({
             id: flower.id?.toString() || index.toString(),
             title: flower.title || `Цветок ${index}`,
@@ -2080,10 +2050,10 @@ export const FlowersList = ({
             colorId: flower.colorId || 1,
             flower_type_id: flower.flower_type_id || 1
           }));
-          
           setAllFlowers(transformedFlowers);
-        } catch (error) {
-          console.error('DB error:', error);
+        }
+        catch (error) {
+          console.error('Ошибка получения цветов:', error);
           setAllFlowers(hardcodedFlowers);
         }
       } else {
@@ -2093,15 +2063,12 @@ export const FlowersList = ({
     loadFlowers();
   }, []);
 
-
-
   const filteredFlowers = allFlowers.filter(flower => {
     const matchesColor = flower.colorId === 13 || selectedColors.includes(flower.colorId);
     const matchesSearch = searchQuery === '' ||
       flower.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = selectedTypes.length === 0 || 
       selectedTypes.includes(flower.flower_type_id);
-    
     return matchesColor && matchesSearch && matchesType;
   });
 
@@ -2137,11 +2104,6 @@ export interface FlowerButtonProps {
   id: string;
   onClick: () => void;
 }
---------------------------------------------------------------------------------
-
-Файл: components\Catalog\FlowerTypesList\FlowerTypesList.tsx
-================================================================================
-
 --------------------------------------------------------------------------------
 
 Файл: components\Catalog\index.ts
@@ -2466,17 +2428,17 @@ import './BottomFlowerControls.css';
 
 interface BottomFlowerControlsProps {
   width: number;
-  onMirror: () => void;
-  onDuplicate: () => void;
-  onReset: () => void;
+  onMirror?: () => void;
+  onDuplicate?: () => void;
+  onReset?: () => void;
   onDelete: () => void;
 }
 
 export const BottomFlowerControls = ({ 
   width, 
-  onMirror,
-  onDuplicate, 
-  onReset, 
+  onMirror = () => {},
+  onDuplicate = () => {}, 
+  onReset = () => {}, 
   onDelete 
 }: BottomFlowerControlsProps) => {
   const buttonSize = Math.min(40, (width - 20) / 4);
@@ -2540,58 +2502,6 @@ export const BottomFlowerControls = ({
     </div>
   );
 }
---------------------------------------------------------------------------------
-
-Файл: components\Flowers\FlowerPanel\DeleteButton.css
-================================================================================
-.delete-button {
-  width: 40px;
-  border-radius: 10px;
-  border: none;
-  background-color: #ff1212;
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  font-weight: bold;
-  transition: background-color 0.2s;
-  flex-shrink: 0;
-  margin-top: 5px;
-  margin-right: 5px;
-}
-
-.delete-button:hover {
-  background-color: #ee0000;
-}
---------------------------------------------------------------------------------
-
-Файл: components\Flowers\FlowerPanel\DeleteButton.tsx
-================================================================================
-import './DeleteButton.css';
-
-interface DeleteButtonProps {
-  height: number;
-  onDelete: () => void;
-}
-
-export const DeleteButton = ({ height, onDelete }: DeleteButtonProps) => {
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDelete();
-  };
-
-  return (
-    <button
-      className="delete-button"
-      onClick={handleClick}
-      style={{ height: `${height / 2 - 20}px` }}
-    >
-      ×
-    </button>
-  );
-};
 --------------------------------------------------------------------------------
 
 Файл: components\Flowers\FlowerPanel\FlowerPanel.css
@@ -2709,9 +2619,9 @@ export function FlowerPanel({
 
           <BottomFlowerControls 
             width={width}
-            onMirror={onMirror || (() => console.log('Отзеркаливанеи цветка'))}
-            onDuplicate={onDuplicate || (() => console.log('Копирование цветка'))}
-            onReset={onReset || (() => console.log('Сброс настроек цветка'))}
+            onMirror={onMirror}
+            onDuplicate={onDuplicate}
+            onReset={onReset}
             onDelete={onDelete}
           />
         </div>
@@ -2736,7 +2646,7 @@ export function FlowerPanel({
 }
 
 .layer-tile {
-  height: 0.7rem;
+  height: 0.8rem;
   width: 2rem;
   background-color: #F4F4F4;
   border-radius: 1rem;
@@ -2832,7 +2742,7 @@ export const LayerControl = ({ currentFlowerId }: LayerControlProps) => {
 .outline-border {
   width: 100%;
   height: 100%;
-  border: 3px dashed #6a7278;
+  border: 3px dashed #7e8992;
   animation: pulse 2s infinite ease-in-out;
 }
 
@@ -2911,46 +2821,6 @@ export const OutlineEdit = ({ flower, isActive, onRotationStart, isRotating }: O
         onMouseDown={onRotationStart}
       >
         <div className="rotation-circle" />
-      </div>
-    </div>
-  );
-};
---------------------------------------------------------------------------------
-
-Файл: components\Flowers\FlowerPanel\RotationControl.tsx
-================================================================================
-import { useState } from 'react';
-import './FlowerPanel.css';
-
-export const RotationControl = ({
-  height,
-  currentRotation,
-  onRotationChange
-}: {
-  height: number;
-  currentRotation: number;
-  onRotationChange: (rotation: number) => void;
-}) => {
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const delta = e.deltaY > 0 ? -5 : 5;
-    onRotationChange((currentRotation + delta) % 360);
-  };
-
-  return (
-    <div 
-      data-rotation-area
-      className={`rotation-control ${isHovered ? 'hovered' : ''}`}
-      style={{ height: `${height / 2 - 20}px` }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onWheel={handleWheel}
-    >
-      <div style={{ textAlign: 'center' }}>
-        <div>Зона вращения</div>
       </div>
     </div>
   );
@@ -3096,202 +2966,6 @@ export type LayerControlProps = {
 };
 --------------------------------------------------------------------------------
 
-Файл: components\Flowers\FlowerShadow.tsx
-================================================================================
-// src/components/Flowers/FlowerShadow.tsx
-import { useEffect, useRef } from 'react';
-import { FlowerType } from '@/types';
-
-interface FlowerShadowProps {
-  flower: FlowerType;
-}
-
-export const FlowerShadow = ({ flower }: FlowerShadowProps) => {
-  const shadowCanvasRef = useRef<HTMLCanvasElement>(null);
-  
-  const shadowConfig = {
-    color: '#000000',
-    offsetX: 8,
-    offsetY: 8,
-    blur: 12,
-    opacity: 0.25
-  };
-
-  useEffect(() => {
-    if (!flower.image || !shadowCanvasRef.current) return;
-
-    const ctx = shadowCanvasRef.current.getContext('2d', { willReadFrequently: true });
-    if (!ctx) return;
-
-    const width = Math.floor(flower.angles.width * flower.scale);
-    const height = Math.floor(flower.angles.height * flower.scale);
-    
-    if (shadowCanvasRef.current.width !== width || shadowCanvasRef.current.height !== height) {
-      shadowCanvasRef.current.width = width;
-      shadowCanvasRef.current.height = height;
-    }
-    ctx.clearRect(0, 0, width, height);
-
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = width;
-    tempCanvas.height = height;
-    const tempCtx = tempCanvas.getContext('2d');
-    
-    if (tempCtx) {
-      tempCtx.save();
-      tempCtx.translate(width / 2, height / 2);
-      tempCtx.rotate((flower.rotation * Math.PI) / 180);
-      
-      if ((flower as any).isFlipped) {
-        tempCtx.scale(-1, 1);
-      }
-
-      try {
-        tempCtx.drawImage(
-          flower.image,
-          flower.currentAngle * flower.angles.width,
-          0,
-          flower.angles.width,
-          flower.angles.height,
-          -width / 2,
-          -height / 2,
-          width,
-          height
-        );
-      } catch (error) {
-        console.error('Ошибка рисования тени:', error);
-        tempCtx.restore();
-        return;
-      }
-
-      tempCtx.restore();
-
-      const imageData = tempCtx.getImageData(0, 0, width, height);
-      const data = imageData.data;
-      const shadowData = new Uint8ClampedArray(data.length);
-      
-      const shadowRgb = hexToRgb(shadowConfig.color);
-      if (!shadowRgb) return;
-      
-      for (let i = 0; i < data.length; i += 4) {
-        const alpha = data[i + 3];
-        
-        if (alpha > 10) {
-          const shadowAlpha = Math.floor(shadowConfig.opacity * alpha);
-          
-          shadowData[i] = shadowRgb.r;
-          shadowData[i + 1] = shadowRgb.g;
-          shadowData[i + 2] = shadowRgb.b;
-          shadowData[i + 3] = shadowAlpha;
-        } else {
-          shadowData[i + 3] = 0;
-        }
-      }
-
-      const blurredData = applyBoxBlur(shadowData, width, height, shadowConfig.blur);
-      const buffer = new ArrayBuffer(blurredData.length);
-      const fixedData = new Uint8ClampedArray(buffer);
-      fixedData.set(blurredData);
-      const imageDataForShadow = new ImageData(fixedData, width, height);
-      
-      ctx.putImageData(
-        imageDataForShadow,
-        shadowConfig.offsetX,
-        shadowConfig.offsetY
-      );
-    }
-  }, [flower]);
-
-  if (!flower.image) return null;
-
-  return (
-    <canvas
-      ref={shadowCanvasRef}
-      style={{
-        position: 'absolute',
-        left: flower.x,
-        top: flower.y,
-        zIndex: flower.zIndex - 1,
-        pointerEvents: 'none',
-      }}
-    />
-  );
-};
-
-const hexToRgb = (hex: string) => {
-  hex = hex.replace(/^#/, '');
-
-  if (hex.length === 3) {
-    hex = hex.split('').map(c => c + c).join('');
-  }
-  
-  const num = parseInt(hex, 16);
-  return {
-    r: (num >> 16) & 255,
-    g: (num >> 8) & 255,
-    b: num & 255
-  };
-};
-
-const applyBoxBlur = (data: Uint8ClampedArray, width: number, height: number, radius: number): Uint8ClampedArray => {
-  if (radius <= 0) return data;
-  
-  const result = new Uint8ClampedArray(data.length);
-  const diameter = radius * 2 + 1;
-  
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      let r = 0, g = 0, b = 0, a = 0, count = 0;
-      
-      for (let kx = -radius; kx <= radius; kx++) {
-        const nx = x + kx;
-        if (nx >= 0 && nx < width) {
-          const i = (y * width + nx) * 4;
-          r += data[i];
-          g += data[i + 1];
-          b += data[i + 2];
-          a += data[i + 3];
-          count++;
-        }
-      }
-      
-      const i = (y * width + x) * 4;
-      result[i] = r / count;
-      result[i + 1] = g / count;
-      result[i + 2] = b / count;
-      result[i + 3] = a / count;
-    }
-  }
-  
-  const finalResult = new Uint8ClampedArray(data.length);
-  for (let x = 0; x < width; x++) {
-    for (let y = 0; y < height; y++) {
-      let r = 0, g = 0, b = 0, a = 0, count = 0;
-      
-      for (let ky = -radius; ky <= radius; ky++) {
-        const ny = y + ky;
-        if (ny >= 0 && ny < height) {
-          const i = (ny * width + x) * 4;
-          r += result[i];
-          g += result[i + 1];
-          b += result[i + 2];
-          a += result[i + 3];
-          count++;
-        }
-      }
-      
-      const i = (y * width + x) * 4;
-      finalResult[i] = r / count;
-      finalResult[i + 1] = g / count;
-      finalResult[i + 2] = b / count;
-      finalResult[i + 3] = a / count;
-    }
-  }
-  
-  return finalResult;
-};
---------------------------------------------------------------------------------
-
 Файл: components\Flowers\hooks\useFlowerDrag.ts
 ================================================================================
 import { useState, useEffect } from 'react';
@@ -3316,14 +2990,14 @@ export const useFlowerDrag = (
       if (!currentCanvas) continue;
 
       const rect = currentCanvas.getBoundingClientRect();
-      const ctx = currentCanvas.getContext('2d');
-      if (!ctx) continue;
+      const context = currentCanvas.getContext('2d');
+      if (!context) continue;
 
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
       if (x >= 0 && y >= 0 && x < rect.width && y < rect.height) {
-        const pixel = ctx.getImageData(x, y, 1, 1).data;
+        const pixel = context.getImageData(x, y, 1, 1).data;
         if (pixel[3] > 10) {
           if (currentFlower.id === flower.id) {
             setIsDragging(true);
@@ -3384,7 +3058,6 @@ export const useFlowerDuplicate = () => {
   const { flowers, setFlowers } = useFlowersContext();
 
   const duplicateFlower = (flowerId: string) => {
-    console.log(`Duplicate flower ${flowerId}`);
     const originalFlower = flowers.find(f => f.id === flowerId);
     if (!originalFlower) return;
 
@@ -3417,35 +3090,37 @@ export const useFlowerInteractions = (
 ) => {
   const [showPanel, setShowPanel] = useState(false);
 
-  const handleContextMenu = (e: React.MouseEvent) => {
+  const handleContextMenu = (event: React.MouseEvent) => {
     if (isGlobalDrag || isRotating) return;
-    e.preventDefault();
+    event.preventDefault();
     
     for (let i = allFlowers.length - 1; i >= 0; i--) {
       const currentFlower = allFlowers[i];
       const currentCanvas = document.querySelector(`[data-flower-id="${currentFlower.id}"]`) as HTMLCanvasElement;
-      if (!currentCanvas) continue;
-
+      if (!currentCanvas)
+        continue;
       const rect = currentCanvas.getBoundingClientRect();
-      const ctx = currentCanvas.getContext('2d', { willReadFrequently: true });
-      if (!ctx) continue;
-
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
+      const context = currentCanvas.getContext('2d', { willReadFrequently: true });
+      if (!context)
+        continue;
+      // рассчёт абсолютных координат клика
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      // поиск цветка под мышью сверху вниз
       if (x >= 0 && y >= 0 && x < rect.width && y < rect.height) {
-        const pixel = ctx.getImageData(x, y, 1, 1).data;
+        // проверка прозрачности (можно перетаскивать только за полупрозрачный/непрозрачный кусок картинки)
+        const pixel = context.getImageData(x, y, 1, 1).data;
         if (pixel[3] > 10) {
           if (currentFlower.id === flower.id) {
-            setShowPanel(true);
+            setShowPanel(true); // панель редактирования станвоится доступной
           } else {
             currentCanvas.dispatchEvent(new MouseEvent('contextmenu', {
-              clientX: e.clientX,
-              clientY: e.clientY,
+              clientX: event.clientX,
+              clientY: event.clientY,
               bubbles: true
             }));
           }
-          e.stopPropagation();
+          event.stopPropagation();
           return;
         }
       }
@@ -3454,50 +3129,48 @@ export const useFlowerInteractions = (
     setShowPanel(false);
   };
 
-  const handleWheel = (e: React.WheelEvent, showPanel: boolean) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (showPanel && !(e.target as HTMLElement).closest('[data-rotation-area]')) {
-      const delta = e.deltaY > 0 ? -0.05 : 0.05;
-      const newScale = Math.max(0.3, Math.min(2.0, flower.scale + delta));
+  // зум при открытой панели редактирования наводкой на цветок
+  const handleWheel = (event: React.WheelEvent, showPanel: boolean) => {
+    event.preventDefault();
+    event.stopPropagation();
+    // обновление размеров
+    if (showPanel && !(event.target as HTMLElement).closest('[data-rotation-area]')) {
+      const delta = event.deltaY > 0 ? -0.05 : 0.05; // от себя - увеличение. на себя - уменьшение
+      const newScale = Math.max(0.3, Math.min(3.0, flower.scale + delta));
       updateFlower(flower.id, { scale: newScale });
       return;
     }
-
-    const elements = document.elementsFromPoint(e.clientX, e.clientY);
+    // обработка нижних цветов
+    const elements = document.elementsFromPoint(event.clientX, event.clientY);
     const lowerFlowers = elements.filter(el => 
       el.hasAttribute('data-flower-id') && 
       el.getAttribute('data-flower-id') !== flower.id
     );
-    
     if (lowerFlowers.length > 0) {
       const lowerFlower = lowerFlowers[0] as HTMLElement;
       lowerFlower.dispatchEvent(new WheelEvent('wheel', {
-        clientX: e.clientX,
-        clientY: e.clientY,
-        deltaY: e.deltaY,
+        clientX: event.clientX,
+        clientY: event.clientY,
+        deltaY: event.deltaY,
         bubbles: true
       }));
     }
   };
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent) => {
       const panel = document.querySelector(`[data-flower-panel="${flower.id}"]`);
       const outline = document.querySelector(`[data-outline-id="${flower.id}"]`);
       const canvas = document.querySelector(`[data-flower-id="${flower.id}"]`);
-      
-      const target = e.target as Node;
+      const target = event.target as Node;
       if (
-        (panel && !panel.contains(target)) && 
-        (!outline || !outline.contains(target)) &&
-        (!canvas || !canvas.contains(target))
+        (panel && !panel.contains(target)) && // если клик по панели
+        (!outline || !outline.contains(target)) && // если клик не по границе
+        (!canvas || !canvas.contains(target)) // если клик не по холсту
       ) {
-        setShowPanel(false);
+        setShowPanel(false); // не показывать панель редактирования
       }
     };
-
     if (showPanel) {
       document.addEventListener('mousedown', handleClickOutside);
     }
@@ -3535,40 +3208,39 @@ export const useFlowerMirror = () => {
 
 Файл: components\Flowers\hooks\useFlowerRender.ts
 ================================================================================
-// src/components/Flowers/hooks/useFlowerRender.ts
 import { useEffect, RefObject } from 'react';
 import { FlowerType } from '@/types';
 
 export const useFlowerRender = (flower: FlowerType, canvasRef: RefObject<HTMLCanvasElement | null>) => {
   useEffect(() => {
-    const ctx = canvasRef.current?.getContext('2d');
-    if (!ctx || !flower.image) return;
+    const context = canvasRef.current?.getContext('2d');
+    if (!context || !flower.image)
+      return;
     
     const displayWidth = Math.abs(flower.angles.width * flower.scale);
     const displayHeight = Math.abs(flower.angles.height * flower.scale);
-    
     const shadowOffset = 10;
     const shadowBlur = 15;
     const totalWidth = displayWidth + shadowOffset + shadowBlur;
     const totalHeight = displayHeight + shadowOffset + shadowBlur;
     
-    if (ctx.canvas.width !== totalWidth || ctx.canvas.height !== totalHeight) {
-      ctx.canvas.width = totalWidth;
-      ctx.canvas.height = totalHeight;
+    if (context.canvas.width !== totalWidth || context.canvas.height !== totalHeight) {
+      context.canvas.width = totalWidth;
+      context.canvas.height = totalHeight;
     }
 
-    ctx.clearRect(0, 0, totalWidth, totalHeight);
-    ctx.save();
-    ctx.translate(shadowOffset + displayWidth / 2, shadowOffset + displayHeight / 2);
-    ctx.rotate((flower.rotation * Math.PI) / 180);
+    context.clearRect(0, 0, totalWidth, totalHeight);
+    context.save();
+    context.translate(shadowOffset + displayWidth / 2, shadowOffset + displayHeight / 2);
+    context.rotate((flower.rotation * Math.PI) / 180);
 
     if ((flower as any).isFlipped) {
-      ctx.scale(-1, 1);
+      context.scale(-1, 1);
     }
 
-    ctx.filter = 'blur(10px) brightness(0.4) opacity(0.5)';
-    
-    ctx.drawImage(
+    context.filter = 'blur(10px) brightness(0.4) opacity(0.5)';
+    // тень под цветком. рисовать стандартную тень слишко мзатратно
+    context.drawImage(
       flower.image,
       flower.currentAngle * flower.angles.width,
       0,
@@ -3580,25 +3252,21 @@ export const useFlowerRender = (flower: FlowerType, canvasRef: RefObject<HTMLCan
       displayHeight
     );
     
-    ctx.restore();
-
-    ctx.save();
-    
-    ctx.translate(displayWidth / 2 + shadowBlur / 2, displayHeight / 2 + shadowBlur / 2);
-    ctx.rotate((flower.rotation * Math.PI) / 180);
-
+    context.restore();
+    context.save();
+    context.translate(displayWidth / 2 + shadowBlur / 2, displayHeight / 2 + shadowBlur / 2);
+    context.rotate((flower.rotation * Math.PI) / 180);
     if ((flower as any).isFlipped) {
-      ctx.scale(-1, 1);
+      context.scale(-1, 1);
     }
-
     if ((flower as any).saturation !== 1.0) {
-      ctx.filter = `saturate(${(flower as any).saturation})`;
+      context.filter = `saturate(${(flower as any).saturation})`;
     } else {
-      ctx.filter = 'none';
+      context.filter = 'none';
     }
-
+    // цветок над тенью
     try {
-      ctx.drawImage(
+      context.drawImage(
         flower.image,
         flower.currentAngle * flower.angles.width,
         0,
@@ -3610,13 +3278,18 @@ export const useFlowerRender = (flower: FlowerType, canvasRef: RefObject<HTMLCan
         displayHeight
       );
     } catch (error) {
-      console.error('useFlowerRender.ts - ошибка -', error, flower.name);
+      console.error('useFlowerRender.ts - ошибка рисования цветка -', error, flower.name);
     }
+    context.restore();
     
-    ctx.restore();
-    
-  }, [flower.image, flower.currentAngle, flower.scale, flower.rotation, 
-      flower.angles, (flower as any).saturation, (flower as any).isFlipped, canvasRef]);
+  }, [flower.image,
+    flower.currentAngle,
+    flower.scale,
+    flower.rotation, 
+    flower.angles,
+    (flower as any).saturation,
+    (flower as any).isFlipped,
+    canvasRef]);
 };
 --------------------------------------------------------------------------------
 
@@ -3628,10 +3301,10 @@ export const useFlowerReset = () => {
   const { updateFlower } = useFlowersContext();
 
   const resetFlower = (flowerId: string) => {
-    console.log(`Ресет цветка: ${flowerId}`);
     updateFlower(flowerId, {
       scale: 0.7,
       rotation: 0,
+      // @ts-ignore - не могу решить проблему
       saturation: 1.0,
       currentAngle: 0
     });
@@ -3655,42 +3328,38 @@ export const useFlowerRotation = (
   const [isRotating, setIsRotating] = useState(false);
   const [rotationOffset, setRotationOffset] = useState(0);
 
-  const handleRotationStart = (e: React.MouseEvent) => {
-    if (isGlobalDrag) return;
-    
+  const handleRotationStart = (event: React.MouseEvent) => {
+    if (isGlobalDrag)
+      return;
     setIsRotating(true);
-    e.preventDefault();
-    e.stopPropagation();
-    
+    event.preventDefault();
+    event.stopPropagation();
     const rect = canvasRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    
+    if (!rect)
+      return;
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    
     const startAngle = Math.atan2(
-      e.clientY - centerY,
-      e.clientX - centerX
+      event.clientY - centerY,
+      event.clientX - centerX
     ) * (180 / Math.PI);
-    
     setRotationOffset(startAngle - flower.rotation);
   };
 
   useEffect(() => {
-    if (!isRotating) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
+    if (!isRotating)
+      return;
+    
+    const handleMouseMove = (event: MouseEvent) => {
       const rect = canvasRef.current?.getBoundingClientRect();
-      if (!rect) return;
-
+      if (!rect)
+        return;
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      
       const currentAngle = Math.atan2(
-        e.clientY - centerY,
-        e.clientX - centerX
+        event.clientY - centerY,
+        event.clientX - centerX
       ) * (180 / Math.PI);
-      
       const newRotation = (currentAngle - rotationOffset + 360) % 360;
       updateFlower(flower.id, { rotation: newRotation });
     };
@@ -4381,77 +4050,74 @@ export const BouquetPreview = ({ filePath, size = 180 }: BouquetPreviewProps) =>
         return;
       }
 
-      try {
+      try { // загрузка картинок для превью
         const flowers: SavedFlower[] = await window.electronAPI.loadBouquetFromPath(filePath);
-        
         if (!flowers || flowers.length === 0) {
           setHasError(true);
           return;
         }
-
+        // создание массива промисов
         const flowerPromises = flowers.map(async (flower): Promise<LoadedFlower | null> => {
           try {
+            // цветы доставляются в виде текста
             const base64 = await window.electronAPI.getFlowerImage(flower.flowerName);
             const img = new Image();
-            
+            // загрузка
             await new Promise<void>((resolve, reject) => {
               img.onload = () => resolve();
               img.onerror = reject;
               img.src = base64;
             });
-            
-            return { img, flower };
+            return { img, flower }; // успешный результат
           } catch (error) {
             return null;
           }
         });
-        
+        // параеллельная загрузка цветов
         const loadedFlowersResults = await Promise.all(flowerPromises);
         const loadedImages: LoadedFlower[] = loadedFlowersResults.filter(
-          (item): item is LoadedFlower => item !== null
+          (item): item is LoadedFlower => item !== null // пропуск ошибок
         );
-        
         if (loadedImages.length === 0) {
-          setHasError(true);
+          setHasError(true); //пустой букет или ошибка
           return;
         }
-        
         setBouquetData({ flowers, loadedImages });
         setHasError(false);
       } catch (error) {
         setHasError(true);
+        console.log(`BouquetPreview.tsx - error - ${error}`);
       } finally {
         setIsLoading(false);
       }
     };
-    
     loadBouquetData();
   }, [filePath]);
 
   useEffect(() => {
-    if (!bouquetData || !canvasRef.current) return;
-
+    if (!bouquetData || !canvasRef.current)
+      return;
     const renderToCanvas = () => {
       const canvas = canvasRef.current!;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
+      const context = canvas.getContext('2d');
+      if (!context)
+        return;
       const { loadedImages } = bouquetData;
       const width = canvas.width;
       const height = canvas.height;
+      context.clearRect(0, 0, width, height);
+      context.fillStyle = 'rgba(255,255,255,0)';
+      context.fillRect(0, 0, width, height);
 
-      ctx.clearRect(0, 0, width, height);
-      
-      ctx.fillStyle = 'rgba(255,255,255,0)';
-      ctx.fillRect(0, 0, width, height);
-      
-      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      let minX = Infinity;
+      let maxX = -Infinity;
+      let minY = Infinity;
+      let maxY = -Infinity;
       
       loadedImages.forEach(({ img, flower }) => {
         const fScale = flower.scale || 1;
         const fw = (img.width / 4) * fScale;
         const fh = img.height * fScale;
-        
         minX = Math.min(minX, flower.x - fw/2);
         maxX = Math.max(maxX, flower.x + fw/2);
         minY = Math.min(minY, flower.y - fh/2);
@@ -4460,35 +4126,29 @@ export const BouquetPreview = ({ filePath, size = 180 }: BouquetPreviewProps) =>
       
       const bWidth = maxX - minX;
       const bHeight = maxY - minY;
-      
       const padding = 20; 
       const scale = Math.min(
         (width - padding * 2) / bWidth,
         (height - padding * 2) / bHeight
       );
-      
       const centerX = (width - bWidth * scale) / 2;
       const centerY = (height - bHeight * scale) / 2;
 
-      loadedImages.sort((a,b) => (a.flower.zIndex || 0) - (b.flower.zIndex || 0)).forEach(({ img, flower }) => {
-        ctx.save();
-        
+      loadedImages.sort((a, b) => (a.flower.zIndex || 0) - (b.flower.zIndex || 0)).forEach(({ img, flower }) => {
+        context.save();
         const scaledX = centerX + (flower.x - minX) * scale;
         const scaledY = centerY + (flower.y - minY) * scale;
-        
-        ctx.translate(scaledX, scaledY);
-        ctx.rotate(((flower.rotation || 0) * Math.PI) / 180);
-        
-        if (flower.isFlipped) ctx.scale(-1, 1);
-        
+        context.translate(scaledX, scaledY);
+        context.rotate(((flower.rotation || 0) * Math.PI) / 180);
+        if (flower.isFlipped)
+          context.scale(-1, 1);
         const fScale = scale * (flower.scale || 1);
         const sw = img.width / 4;
         const sh = img.height;
         const dw = sw * fScale;
         const dh = sh * fScale;
-        
-        ctx.drawImage(img, (flower.currentAngle || 0) * sw, 0, sw, sh, -dw / 2, -dh / 2, dw, dh);
-        ctx.restore();
+        context.drawImage(img, (flower.currentAngle || 0) * sw, 0, sw, sh, -dw / 2, -dh / 2, dw, dh);
+        context.restore();
       });
     };
 
@@ -4520,22 +4180,19 @@ interface BreadcrumbsProps {
   onGoBack: () => void;
 }
 
+// "хлебные крошки" - визуал навигации типа "папка/папка/папка/букет" в окне преоктов
 export const Breadcrumbs = ({ path, onNavigate, onGoBack }: BreadcrumbsProps) => {
-  // Разбиваем путь на части
   const parts = path === '/' ? [] : path.split('/').filter(p => p);
 
   return (
     <div className="breadcrumbs">
-      {/* Кнопка "Назад" */}
       <button 
         className="breadcrumb-back"
         onClick={onGoBack}
-        title="Назад"
       >
         ←
       </button>
       
-      {/* Корень */}
       <button 
         className="breadcrumb-item"
         onClick={() => onNavigate('')}
@@ -4543,13 +4200,12 @@ export const Breadcrumbs = ({ path, onNavigate, onGoBack }: BreadcrumbsProps) =>
         Projects
       </button>
       
-      {/* Остальные части пути */}
       {parts.map((part, index) => {
         const currentPath = parts.slice(0, index + 1).join('/');
         return (
           <span key={currentPath} className="breadcrumb-separator">
             ›
-            <button 
+            <button
               className="breadcrumb-item"
               onClick={() => onNavigate(currentPath)}
             >
@@ -4578,10 +4234,11 @@ interface ProjectItemProps {
   onRenameCancel?: () => void;
   onClick: () => void;
   onDoubleClick?: () => void;
-  onContextMenu: (e: React.MouseEvent) => void;
+  onContextMenu: (event: React.MouseEvent) => void;
 }
 
-export const ProjectItem = ({ 
+// папка или файл на холсте
+export const ProjectItem = ({
   item, 
   isRenaming,
   onRenameComplete,
@@ -4594,14 +4251,13 @@ export const ProjectItem = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const isFolder = item.type === 'folder';
 
-  useEffect(() => {
+  useEffect(() => { // переименование
     if (isRenaming) {
       const nameToShow = isFolder ? item.name : item.name.replace(/\.json$/, '');
       setTempName(nameToShow);
-      
       setTimeout(() => {
         inputRef.current?.focus();
-        inputRef.current?.select();
+        inputRef.current?.select(); // выбор поля и начало печати в нем
       }, 50);
     }
   }, [isRenaming, item.name, isFolder]);
@@ -4609,12 +4265,10 @@ export const ProjectItem = ({
   const handleSaveRename = async () => {
     const trimmed = tempName.trim();
     const oldCleanName = isFolder ? item.name : item.name.replace(/\.json$/, '');
-
     if (!trimmed || trimmed === oldCleanName) {
       onRenameCancel?.();
       return;
     }
-
     try {
       const success = await window.electronAPI.renameProjectItem(item.path, trimmed);
       if (success) {
@@ -4622,25 +4276,29 @@ export const ProjectItem = ({
       } else {
         onRenameCancel?.();
       }
-    } catch (err) {
-      console.error("Ошибка при переименовании:", err);
+    } catch (error) {
+      console.error("ProjectItem.tsx - ошибка при переименовании:", error);
       onRenameCancel?.();
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleSaveRename();
-    if (e.key === 'Escape') onRenameCancel?.();
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter')
+      handleSaveRename();
+    if (event.key === 'Escape')
+      onRenameCancel?.();
   };
 
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isRenaming) return;
+  // клики не должны проваливаться под окно проектов
+  const handleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (isRenaming)
+      return;
     onClick();
   };
 
-  const handleDoubleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDoubleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
     if (onDoubleClick && !isFolder && !isRenaming) {
       onDoubleClick();
     }
@@ -4655,17 +4313,17 @@ export const ProjectItem = ({
           ref={inputRef}
           className="project-item-rename-input"
           value={tempName}
-          onChange={(e) => setTempName(e.target.value)}
+          onChange={(event) => setTempName(event.target.value)}
           onBlur={handleSaveRename}
           onKeyDown={handleKeyDown}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
         />
       );
     }
     const displayName = isFolder ? item.name : item.name.replace(/\.json$/, '');
     return <div className={isFolder ? "folder-name" : "file-header"}>{displayName}</div>;
   };
-
+  
   return (
     <div 
       className={`project-item ${item.type} ${isRenaming ? 'renaming' : ''}`}
@@ -4716,17 +4374,27 @@ interface ProjectItemData {
   modifiedAt?: string;
 }
 
-const MOCK_FOLDERS_COUNT = 2;
-const MOCK_FILES_COUNT = 16;
-const GENERATED_MOCKS: ProjectItemData[] = [
-  ...Array.from({ length: MOCK_FOLDERS_COUNT }).map((_, i) => ({
-    name: `Папка ${i + 1}`, type: 'folder' as const, path: `folder-${i}`,
-  })),
-  ...Array.from({ length: MOCK_FILES_COUNT }).map((_, i) => ({
-    name: `Букет ${i + 1}`, type: 'file' as const, path: `mock-file-${i}.json`,
-    preview: './images/example.png', modifiedAt: '05.02.2026'
-  }))
-];
+const MOCK_FOLDERS_COUNT = 9;
+const MOCK_FILES_COUNT = 9;
+const GENERATED_MOCKS: ProjectItemData[] = [];
+for (let i = 0; i < MOCK_FOLDERS_COUNT; i++) {
+  const folderNumber = i + 1;
+  GENERATED_MOCKS.push({
+    name: "Папка " + folderNumber,
+    type: 'folder',
+    path: "folder-" + i
+  });
+}
+for (let i = 0; i < MOCK_FILES_COUNT; i++) {
+  const fileNumber = i + 1;
+  GENERATED_MOCKS.push({
+    name: "Букет " + fileNumber,
+    type: 'file',
+    path: "mock-file-" + i + ".json",
+    preview: './images/example.png',
+    modifiedAt: '01.01.2026'
+  });
+}
 const MOCK_STRUCTURE = { path: '/', items: GENERATED_MOCKS };
 
 interface ProjectsExplorerProps {
@@ -4736,81 +4404,83 @@ interface ProjectsExplorerProps {
 }
 
 export const ProjectsExplorer = ({ onPathChange, onClose, setCurrentProject }: ProjectsExplorerProps) => {
-  const { 
+  const {
     currentPath, 
-    structure: realStructure, 
-    isLoading: isRealLoading, 
-    error: realError, 
-    enterFolder, 
+    structure: realStructure,
+    isLoading: isRealLoading,
+    error: realError,
+    enterFolder,
     goBack,
-    loadStructure 
+    loadStructure
   } = useProjects();
   
   const { convert } = useConvertBouquet();
   const [isLoadingBouquet, setIsLoadingBouquet] = useState(false);
   const [rmbMenu, setRmbMenu] = useState<(RMBTarget & { x: number, y: number }) | null>(null);
   const [renamingPath, setRenamingPath] = useState<string | null>(null);
-
-  const isWebMode = !window.electronAPI;
+  const isWebMode = !window.electronAPI; // в веб версии нет файловой системы
   const [clipboard, setClipboard] = useState<{ path: string, action: 'copy' | 'cut' } | null>(null);
 
+  // в вебе моковые данные, в десктопе из БД
   const structure = useMemo(() => {
-    if (!isWebMode && realStructure) return realStructure;
+    if (!isWebMode && realStructure)
+      return realStructure;
+            // в корне или не в корне?                  если в корне, то моки
     return (currentPath === '' || currentPath === '/') ? MOCK_STRUCTURE : { path: currentPath, items: [] as ProjectItemData[] };
   }, [isWebMode, realStructure, currentPath]);
 
+  // отслеживание реального положения при переходе между папками
   useEffect(() => {
-    if (onPathChange && structure) onPathChange(structure.path);
+    if (onPathChange && structure)
+      onPathChange(structure.path);
   }, [structure, onPathChange]);
 
-  const handleItemContextMenu = (e: React.MouseEvent, item: ProjectItemData) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setRmbMenu({ x: e.clientX, y: e.clientY, type: item.type, path: item.path, name: item.name });
+  // обработка ПКМ клика по папке/файлу
+  const handleItemContextMenu = (event: React.MouseEvent, item: ProjectItemData) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setRmbMenu({ x: event.clientX,
+      y: event.clientY,
+      type: item.type,
+      path: item.path,
+      name: item.name });
   };
 
-  const handleGlobalContextMenu = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setRmbMenu({ x: e.clientX, y: e.clientY, type: 'non_file' });
+  // обработка ПКМ клика
+  const handleGlobalContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    setRmbMenu({ x: event.clientX, y: event.clientY, type: 'non_file' });
   };
 
+  // обработка загрузки букета двойным кликом
   const handleFileDoubleClick = async (itemPath: string) => {
-    if (isLoadingBouquet || renamingPath) return;
-    console.log("!!! ProjectsExplorer: Дабл-клик по файлу:", itemPath);
+    if (isLoadingBouquet || renamingPath)
+      return;
     setIsLoadingBouquet(true);
     try {
       if (!window.electronAPI) {
-        console.warn("!!! ProjectsExplorer: electronAPI не доступен");
+        console.warn("!!! ProjectsExplorer: electron API не доступен");
         return;
       }
-      
       const fullPath = `Projects/${itemPath}`;
       const savedFlowers = await window.electronAPI.loadBouquetFromPath(fullPath);
-      
+      // пустой букет
       if (!savedFlowers || savedFlowers.length === 0) {
-        console.warn("!!! ProjectsExplorer: Загруженный букет пуст");
         return;
       }
-      
       const fileName = itemPath.split('/').pop() || itemPath;
       const projectData = { name: fileName, path: fullPath, type: 'file' as const };
-      console.log("!!! ProjectsExplorer: Вызываю setCurrentProject с данными:", projectData);
       setCurrentProject(projectData);
-
       const convertedFlowers = await convert(savedFlowers);
       window.dispatchEvent(new CustomEvent('bouquet-loaded', { detail: convertedFlowers }));
-      
-      if (onClose) onClose();
-    } catch (e) { 
-      console.error("!!! ProjectsExplorer: Ошибка при загрузке:", e); 
+      if (onClose)
+        onClose();
+    } catch (error) { 
+      console.error("!!! ProjectsExplorer: Ошибка при загрузке:", error); 
     } finally { 
       setIsLoadingBouquet(false); 
     }
   };
-
-  if (isRealLoading && !isWebMode) return <div className="projects-explorer-loading">Загрузка структуры...</div>;
-  if (realError && !isWebMode) return <div className="projects-explorer-error">Ошибка: {realError}</div>;
-  if (!structure) return <div className="projects-explorer-empty">Нет данных</div>;
 
   const folders = structure.items.filter(item => item.type === 'folder');
   const files = structure.items.filter(item => item.type === 'file');
@@ -4818,37 +4488,35 @@ export const ProjectsExplorer = ({ onPathChange, onClose, setCurrentProject }: P
   return (
     <div className="projects-explorer" onContextMenu={handleGlobalContextMenu}>
       <Breadcrumbs path={currentPath} onNavigate={enterFolder} onGoBack={goBack} />
-      
-      {isLoadingBouquet && <div className="bouquet-loading-indicator">Загрузка...</div>}
-      
+           
       <div className="projects-content-scroll">
         {structure.items.length === 0 ? (
           <div className="projects-empty">Папка пуста</div>
         ) : (
           <>
             <div className="projects-grid">
-              {folders.map((item) => (
+              {folders.map((item) => ( // сначала все папки
                 <ProjectItemComponent
                   key={item.path}
                   item={item as any} 
                   isRenaming={renamingPath === item.path}
                   onRenameComplete={() => { setRenamingPath(null); loadStructure(currentPath); }}
                   onRenameCancel={() => setRenamingPath(null)}
-                  onClick={() => !renamingPath && enterFolder(item.path)}
-                  onContextMenu={(e) => handleItemContextMenu(e, item)}
+                  onClick={() => enterFolder(item.path)}
+                  onContextMenu={(event) => handleItemContextMenu(event, item)}
                 />
               ))}
               {folders.length > 0 && files.length > 0 && <div className="projects-divider" style={{gridColumn: '1/-1'}} />}
-              {files.map((item) => (
+              {files.map((item) => ( // потом все букеты
                 <ProjectItemComponent
                   key={item.path}
                   item={item as any}
                   isRenaming={renamingPath === item.path}
-                  onRenameComplete={() => { setRenamingPath(null); loadStructure(currentPath); }}
+                  onRenameComplete={() => { setRenamingPath(null);loadStructure(currentPath); }}
                   onRenameCancel={() => setRenamingPath(null)}
                   onClick={() => {}} 
                   onDoubleClick={() => handleFileDoubleClick(item.path)}
-                  onContextMenu={(e) => handleItemContextMenu(e, item)}
+                  onContextMenu={(event) => handleItemContextMenu(event, item)}
                 />
               ))}
             </div>
@@ -4886,7 +4554,6 @@ export const ProjectsExplorer = ({ onPathChange, onClose, setCurrentProject }: P
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 .projects-window-header {
@@ -5202,16 +4869,15 @@ export const ProjectsWindow = ({ onClose, mode = 'load' }: ProjectsWindowProps) 
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSaveBouquet = async () => {
-    if (!fileName.trim()) return;
+    if (!fileName.trim())
+      return;
     setIsSaving(true);
-    console.log("!!! ProjectsWindow: Сохранение файла:", fileName);
 
     try {
       if (!window.electronAPI?.saveBouquetToPath) {
         onClose();
         return;
       }
-
       const flowersDataToSave = flowers.map(flower => ({
         flowerName: flower.name,
         flower_type_id: (flower as any).flower_type_id || 1,
@@ -5224,17 +4890,13 @@ export const ProjectsWindow = ({ onClose, mode = 'load' }: ProjectsWindowProps) 
         saturation: (flower as any).saturation || 1.0,
         isFlipped: (flower as any).isFlipped || false
       }));
-
       let filePath = currentPath && currentPath !== '/' 
-        ? `Projects/${currentPath}/${fileName}.json` 
-        : `Projects/${fileName}.json`;
-
+        ? `Projects/${currentPath}/${fileName}.json` // не в корне
+        : `Projects/${fileName}.json`; // в корне
       await window.electronAPI.saveBouquetToPath({
         flowers: flowersDataToSave,
         filePath: filePath
       });
-
-      console.log("!!! ProjectsWindow: Успешно сохранено. Путь:", filePath);
       setCurrentProject({
         name: `${fileName}.json`,
         path: filePath,
@@ -5243,8 +4905,7 @@ export const ProjectsWindow = ({ onClose, mode = 'load' }: ProjectsWindowProps) 
 
       onClose();
     } catch (error: any) {
-      console.error("!!! ProjectsWindow ERROR:", error);
-      alert("Ошибка при сохранении: " + error.message);
+      console.error("ProjectsWindow ошибка сохранения:", error);
     } finally {
       setIsSaving(false);
     }
@@ -5255,9 +4916,9 @@ export const ProjectsWindow = ({ onClose, mode = 'load' }: ProjectsWindowProps) 
   return (
     <div 
       className="projects-window-container"
-      onMouseDown={(e) => e.stopPropagation()}
-      onClick={(e) => e.stopPropagation()}
-      onDoubleClick={(e) => e.stopPropagation()}
+      onMouseDown={(event) => event.stopPropagation()}
+      onClick={(event) => event.stopPropagation()}
+      onDoubleClick={(event) => event.stopPropagation()}
     >
       <div className="projects-window-header">
         <div className="header-content">
@@ -5291,14 +4952,14 @@ export const ProjectsWindow = ({ onClose, mode = 'load' }: ProjectsWindowProps) 
                 autoFocus
                 placeholder="Введите название"
                 value={fileName}
-                onChange={(e) => setFileName(e.target.value)}
+                onChange={(event) => setFileName(event.target.value)}
                 className="file-name-input"
                 disabled={isSaving}
               />
             </div>
             <button 
               className="save-action-button"
-              onClick={(e) => { e.stopPropagation(); handleSaveBouquet(); }}
+              onClick={(event) => { event.stopPropagation(); handleSaveBouquet(); }}
               disabled={!fileName.trim() || isSaving}
             >
               {isSaving ? 'Сохранение...' : 'Сохранить букет'}
@@ -5327,7 +4988,6 @@ export const ProjectsWindow = ({ onClose, mode = 'load' }: ProjectsWindowProps) 
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  color: #4CAF50;
 }
 --------------------------------------------------------------------------------
 
@@ -5547,7 +5207,8 @@ export const createCanvas = async (currentPath: string): Promise<string | null> 
 Файл: components\ProjectsWindow\RMB_Controls\functions\renameItem.ts
 ================================================================================
 export const renameItem = async (oldPath: string, newName: string): Promise<boolean> => {
-  if (!newName || newName.trim() === "") return false;
+  if (!newName || newName.trim() === "")
+    return false;
 
   try {
     const result = await window.electronAPI.renameProjectItem(oldPath, newName);
@@ -5636,7 +5297,7 @@ interface RMB_ControlsProps {
   onClose: () => void;
   onRenameRequest: (path: string) => void; 
   onUpdate: () => void; 
-  clipboard: { path: string, action: 'copy' | 'cut' } | null;
+  clipboard: { path: string, action: 'copy' | 'cut' } | null; // буфер обмена - хранит пути скопированного/вырезанного файла
   onCopy: (path: string) => void;
   onCut: (path: string) => void;
   onClearClipboard: () => void;
@@ -5646,18 +5307,16 @@ export const RMB_Controls = ({
   x, y, target, currentPath, onClose, onRenameRequest, onUpdate,
   clipboard, onCopy, onCut, onClearClipboard 
 }: RMB_ControlsProps) => {
-  
   const isItem = target.type === 'file' || target.type === 'folder';
-
   const handleCreateFile = async () => {
     try {
       const newPath = await window.electronAPI.createNewBouquet(currentPath);
       if (newPath) {
         onUpdate();
-        setTimeout(() => onRenameRequest(newPath), 50); 
+        setTimeout(() => onRenameRequest(newPath), 50);
       }
-    } catch (err) {
-      console.error("Ошибка при создании букета:", err);
+    } catch (error) {
+      console.error("RMB_controls.tsx - handleCreateFile - ошибка при создании букета:", error);
     } finally {
       onClose();
     }
@@ -5667,11 +5326,11 @@ export const RMB_Controls = ({
     try {
       const newPath = await window.electronAPI.createNewFolder(currentPath);
       if (newPath) {
-        onUpdate();
-        setTimeout(() => onRenameRequest(newPath), 50);
+        await onUpdate();
+        setTimeout(() => onRenameRequest(newPath), 100);
       }
-    } catch (err) {
-      console.error("Ошибка при создании папки:", err);
+    } catch (error) {
+      console.error("RMB_controls.tsx - handleCreateFolder - ошибка при создании папки:", error);
     } finally {
       onClose();
     }
@@ -5691,7 +5350,8 @@ export const RMB_Controls = ({
   };
 
   const handlePasteClick = async () => {
-    if (!clipboard) return;
+    if (!clipboard)
+      return;
 
     try {
       await window.electronAPI.pasteItem({
@@ -5699,26 +5359,26 @@ export const RMB_Controls = ({
         destDir: currentPath,
         action: clipboard.action
       });
-
       if (clipboard.action === 'cut') {
         onClearClipboard();
       }
-      
       onUpdate();
     } catch (err) {
-      console.error("Ошибка вставки:", err);
+      console.error("RMB_controls.tsx - handlePasteClick - ошибка вставки:", err);
     } finally {
       onClose();
     }
   };
 
   const handleDeleteClick = async () => {
-    if (!target.path) return;
+    if (!target.path)
+      return;
     try {
       const success = await window.electronAPI.deleteProjectItem(target.path);
-      if (success) onUpdate();
+      if (success)
+        onUpdate();
     } catch (err) {
-      console.error("Ошибка при удалении:", err);
+      console.error("RMB_controls.tsx - handleDeleteClick - ошибка при удалении:", err);
     } finally {
       onClose();
     }
@@ -5734,13 +5394,13 @@ export const RMB_Controls = ({
       <div 
         className="rmb-overlay" 
         onClick={onClose} 
-        onContextMenu={(e) => { e.preventDefault(); onClose(); }} 
+        onContextMenu={(event) => { event.preventDefault(); onClose(); }} 
       />
       
       <div 
         className="rmb-menu" 
         style={{ top: y, left: x }}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
       >
         {isItem && (
           <>
@@ -5792,11 +5452,6 @@ export const RMB_Controls = ({
 };
 --------------------------------------------------------------------------------
 
-Файл: components\TestComponent.tsx
-================================================================================
-
---------------------------------------------------------------------------------
-
 Файл: contexts\FlowersContext.tsx
 ================================================================================
 import { createContext, useContext } from 'react';
@@ -5844,23 +5499,15 @@ export {  useConvertBouquet };
 ================================================================================
 import { SavedFlower } from '@/types/bouquet';
 
+// преобразование конфига букета в букет на холсте (цветок 1: id, name, colour, position..., цветок 2...)
 export const useConvertBouquet = () => {
   const convert = async (savedFlowers: SavedFlower[]): Promise<any[]> => {
     const convertedFlowers = [];
-    
     for (const savedFlower of savedFlowers) {
       try {
         let imageSrc: string;
-        
-        if (window.electronAPI?.getFlowerImage) {
-          imageSrc = await window.electronAPI.getFlowerImage(savedFlower.flowerName);
-        } else {
-          const fileName = `${savedFlower.flowerName.replace(/\s+/g, '-')}.png`;
-          imageSrc = `./images/flowers/${fileName}`;
-        }
-        
+        imageSrc = await window.electronAPI.getFlowerImage(savedFlower.flowerName);
         const img = new Image();
-        
         await new Promise((resolve, reject) => {
           img.onload = () => resolve(img);
           img.onerror = () => reject(new Error(`useConvertBouquet.ts - ошибка загрузки: ${savedFlower.flowerName}`));
@@ -5874,8 +5521,9 @@ export const useConvertBouquet = () => {
           image: img,
           width: img.width,
           height: img.height,
+          // "|| ..." - по умолчанию конфигурация спавна цветика на холсте
           x: savedFlower.x || 800,
-          y: savedFlower.y || 100,
+          y: savedFlower.y || 200,
           zIndex: savedFlower.zIndex || 0,
           scale: savedFlower.scale || 0.7,
           rotation: savedFlower.rotation || 0,
@@ -5888,7 +5536,6 @@ export const useConvertBouquet = () => {
             height: img.height
           }
         };
-        
         convertedFlowers.push(flower);
       } catch (error) {
       }
@@ -5938,56 +5585,26 @@ export const useClickOutside = (
   ref: RefObject<HTMLElement | null>,
   isActive: boolean,
   onClickOutside: () => void,
-  excludeSelectors: string[] = []
+  excludeSelectors: string[] = [] // исключения
 ) => {
   useEffect(() => {
     if (!isActive) return;
-
+    // клик вне каталога закрывает его
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
       const isInsideRef = ref.current && ref.current.contains(target);
       const isExcluded = excludeSelectors.some(selector => 
         target.closest(selector)
-      );
+      ); // внутри окна?  //исключения
       if (!isInsideRef && !isExcluded) {
         onClickOutside();
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isActive, onClickOutside, ref, excludeSelectors]);
-};
---------------------------------------------------------------------------------
-
-Файл: hooks\useFlowerLoader.ts
-================================================================================
-import { useEffect, useRef } from 'react';
-
-export const useFlowerLoader = (loadFlower: (name: string, imagePath: string) => void, flowerName: string) => {
-  const hasLoaded = useRef(false);
-
-  useEffect(() => {
-    //console.log("ЗАГРУЗКА ДЕФОЛТНОГО")
-    if (flowerName && !hasLoaded.current) {
-      hasLoaded.current = true;
-      
-      const imagePath = `./images/flowers/${flowerName}`;
-      
-      const img = new Image();
-      img.src = imagePath;
-      
-      img.onload = () => {
-        loadFlower(flowerName, imagePath);
-      };
-      
-      img.onerror = () => {
-        console.error(`Ошибка загрузки изображения: ${imagePath}`);
-      };
-    }
-  }, [loadFlower, flowerName]);
 };
 --------------------------------------------------------------------------------
 
@@ -5999,45 +5616,42 @@ import { ProjectItem } from '../types/project';
 
 export const useFlowers = () => {
   const [flowers, setFlowers] = useState<FlowerType[]>([]);
+  // уже загруженные цветы кэшируются
   const [flowerCache, setFlowerCache] = useState<Map<string, HTMLImageElement>>(new Map());
   const [isDirty, setIsDirty] = useState(false);
   const [currentProject, setCurrentProject] = useState<ProjectItem | null>(null);
 
   useEffect(() => {
+    // загрузка цветов в кэш
     const loadAllFlowerImages = async () => {
-      if (!window.electronAPI) return;
-
+      if (!window.electronAPI)
+        return;
       try {
         const flowersFromDB = await window.electronAPI.getFlowers();
         const cache = new Map<string, HTMLImageElement>();
-        
         for (const flowerData of flowersFromDB) {
           try {
             const base64Data = await window.electronAPI.getFlowerImage(flowerData.title);
             const img = new Image();
-            
             await new Promise((resolve, reject) => {
               img.onload = () => resolve(img);
               img.onerror = () => reject();
               img.src = base64Data;
             });
-            
             cache.set(flowerData.title, img);
           } catch (error) {}
         }
-        
         setFlowerCache(cache);
       } catch (error) {}
     };
-
     loadAllFlowerImages();
   }, []);
 
   const loadFlower = (name: string, flower_type_id: number = 1) => {
-    if (window.electronAPI) {
+    if (window.electronAPI) { // десктоп версия
       const cachedImage = flowerCache.get(name);
-      if (!cachedImage) return;
-
+      if (!cachedImage) // при второй загрузке цветы должны быть в кэше
+        return;
       const newFlower = {
         id: Math.random().toString(36).slice(2),
         name,
@@ -6045,9 +5659,9 @@ export const useFlowers = () => {
         width: cachedImage.width,
         height: cachedImage.height,
         x: 800,
-        y: 100,
+        y: 200,
         zIndex: flowers.length,
-        scale: 0.6,
+        scale: 0.7,
         rotation: 0,
         currentAngle: 0,
         flower_type_id,
@@ -6056,18 +5670,14 @@ export const useFlowers = () => {
           height: cachedImage.height,
         },
       } as FlowerType;
-
       setFlowers(prev => [...prev, newFlower]);
       setIsDirty(true);
-      
-    } else {
+    } else { // загрузка цветов для демо браузера
       const fileName = `${name.replace(/\s+/g, '-')}.png`;
       const imagePath = `./images/flowers/${fileName}`;
-      
       const img = new Image();
       img.crossOrigin = "Anonymous";
       img.src = imagePath;
-      
       img.onload = () => {
         const newFlower = {
           id: Math.random().toString(36).slice(2),
@@ -6076,7 +5686,7 @@ export const useFlowers = () => {
           width: img.width,
           height: img.height,
           x: 800,
-          y: 100,
+          y: 200,
           zIndex: flowers.length,
           scale: 0.7,
           rotation: 0,
@@ -6093,28 +5703,31 @@ export const useFlowers = () => {
     }
   };
 
+  // точечное обновление по id цветка
   const updateFlower = (id: string, updates: Partial<FlowerType>) => {
     setFlowers(prev => 
-      prev.map(f => f.id === id ? {...f, ...updates} : f)
+      prev.map(flower => flower.id === id ? {...flower, ...updates} : flower)
     );
     setIsDirty(true);
   };
 
+  // не используется
   const bringToFront = (id: string) => {
     setFlowers(prev => {
-      const maxZIndex = Math.max(...prev.map(f => f.zIndex), 0);
-      return prev.map(f => f.id === id ? {...f, zIndex: maxZIndex + 1} : f);
+      const maxZIndex = Math.max(...prev.map(flower => flower.zIndex), 0);
+      return prev.map(flower => flower.id === id ? {...flower, zIndex: maxZIndex + 1} : flower);
     });
     setIsDirty(true);
   };
 
+  // удаление
   const removeFlower = (id: string) => {
     setFlowers(prev => prev.filter(flower => flower.id !== id));
     setIsDirty(true);
   };
 
   const updateAllFlowers = (updates: (flower: FlowerType) => Partial<FlowerType>) => {
-    setFlowers(prev => prev.map(f => ({ ...f, ...updates(f) })));
+    setFlowers(prev => prev.map(flower => ({ ...flower, ...updates(flower) })));
     setIsDirty(true);
   };
 
@@ -6157,19 +5770,18 @@ export const useFlowerTypes = () => {
   const [flowerTypes, setFlowerTypes] = useState<FlowerType[]>([]);
 
   useEffect(() => {
+    // загрузка типов цветов для фильтрации в каталоге
     const loadFlowerTypes = async () => {
       const api = (window as any).electronAPI;
-      if (!api || !api.getFlowerTypes) return;
-
+      if (!api || !api.getFlowerTypes)
+        return;
       try {
         const typesList = await api.getFlowerTypes();
-        
         const processedTypes = typesList.map((type: any) => {
+          // моки для веб-версии
           let finalImage = './images/flowers/mock-flower-type.png';
-
           if (type.picture) {
             const bufferData = type.picture.data || type.picture;
-            
             if (bufferData && (bufferData.length > 0 || bufferData.byteLength > 0)) {
               const uint8Array = new Uint8Array(bufferData);
               let binary = '';
@@ -6177,12 +5789,10 @@ export const useFlowerTypes = () => {
               for (let i = 0; i < len; i++) {
                 binary += String.fromCharCode(uint8Array[i]);
               }
-              
               const base64String = window.btoa(binary);
               finalImage = `data:image/png;base64,${base64String}`;
             }
           }
-
           return {
             ...type,
             picture: finalImage
@@ -6191,7 +5801,7 @@ export const useFlowerTypes = () => {
 
         setFlowerTypes(processedTypes);
       } catch (error) {
-        console.error("Ошибка обработки типов цветов:", error);
+        console.error("useFlowerTypes.ts - ошибка типов цветов:", error);
       }
     };
 
@@ -6213,25 +5823,24 @@ export const useGlobalDrag = (
   const [isMiddleButtonDown, setIsMiddleButtonDown] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
-  const handleMouseDown = (e: MouseEvent) => {
-    if (e.button === 1) {
+  // движение всех цветов зажатием колесика мыши
+  const handleMouseDown = (event: MouseEvent) => {
+    if (event.button === 1) {
       setIsMiddleButtonDown(true);
-      setDragOffset({ x: e.clientX, y: e.clientY });
-      e.preventDefault();
+      setDragOffset({ x: event.clientX, y: event.clientY });
+      event.preventDefault();
     }
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMouseMove = (event: MouseEvent) => {
     if (isMiddleButtonDown) {
-      const deltaX = e.clientX - dragOffset.x;
-      const deltaY = e.clientY - dragOffset.y;
-      
+      const deltaX = event.clientX - dragOffset.x;
+      const deltaY = event.clientY - dragOffset.y;
       updateAllFlowers(flower => ({
         x: flower.x + deltaX,
         y: flower.y + deltaY
       }));
-      
-      setDragOffset({ x: e.clientX, y: e.clientY });
+      setDragOffset({ x: event.clientX, y: event.clientY });
     }
   };
 
@@ -6243,7 +5852,6 @@ export const useGlobalDrag = (
     document.addEventListener('mousedown', handleMouseDown);
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-
     return () => {
       document.removeEventListener('mousedown', handleMouseDown);
       document.removeEventListener('mousemove', handleMouseMove);
@@ -6254,16 +5862,11 @@ export const useGlobalDrag = (
   return {
     isMiddleButtonDown,
     dragHandlers: {
-      onMouseDown: (e: React.MouseEvent) => handleMouseDown(e.nativeEvent),
-      onWheel: (e: React.WheelEvent) => e.preventDefault()
+      onMouseDown: (event: React.MouseEvent) => handleMouseDown(event.nativeEvent),
+      onWheel: (event: React.WheelEvent) => event.preventDefault()
     }
   };
 };
---------------------------------------------------------------------------------
-
-Файл: hooks\useLoadFlower.ts
-================================================================================
-//     (x.x)
 --------------------------------------------------------------------------------
 
 Файл: hooks\useProjects.ts
@@ -6314,16 +5917,7 @@ export const useProjects = () => {
     }
   };
 
-  const createFolder = async (folderName: string) => {
-    if (!window.electronAPI?.createProjectFolder) return;
-
-    try {
-      await window.electronAPI.createProjectFolder(currentPath, folderName);
-      await loadStructure(currentPath);
-    } catch (err: any) {
-      throw err;
-    }
-  };
+  const createFolder = async (folderName: string) => {  };
 
   return {
     currentPath,

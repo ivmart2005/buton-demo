@@ -7,25 +7,24 @@ export const useGlobalDrag = (
   const [isMiddleButtonDown, setIsMiddleButtonDown] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
-  const handleMouseDown = (e: MouseEvent) => {
-    if (e.button === 1) {
+  // движение всех цветов зажатием колесика мыши
+  const handleMouseDown = (event: MouseEvent) => {
+    if (event.button === 1) {
       setIsMiddleButtonDown(true);
-      setDragOffset({ x: e.clientX, y: e.clientY });
-      e.preventDefault();
+      setDragOffset({ x: event.clientX, y: event.clientY });
+      event.preventDefault();
     }
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMouseMove = (event: MouseEvent) => {
     if (isMiddleButtonDown) {
-      const deltaX = e.clientX - dragOffset.x;
-      const deltaY = e.clientY - dragOffset.y;
-      
+      const deltaX = event.clientX - dragOffset.x;
+      const deltaY = event.clientY - dragOffset.y;
       updateAllFlowers(flower => ({
         x: flower.x + deltaX,
         y: flower.y + deltaY
       }));
-      
-      setDragOffset({ x: e.clientX, y: e.clientY });
+      setDragOffset({ x: event.clientX, y: event.clientY });
     }
   };
 
@@ -37,7 +36,6 @@ export const useGlobalDrag = (
     document.addEventListener('mousedown', handleMouseDown);
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-
     return () => {
       document.removeEventListener('mousedown', handleMouseDown);
       document.removeEventListener('mousemove', handleMouseMove);
@@ -48,8 +46,8 @@ export const useGlobalDrag = (
   return {
     isMiddleButtonDown,
     dragHandlers: {
-      onMouseDown: (e: React.MouseEvent) => handleMouseDown(e.nativeEvent),
-      onWheel: (e: React.WheelEvent) => e.preventDefault()
+      onMouseDown: (event: React.MouseEvent) => handleMouseDown(event.nativeEvent),
+      onWheel: (event: React.WheelEvent) => event.preventDefault()
     }
   };
 };

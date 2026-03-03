@@ -67,9 +67,9 @@ export function FlowerPanel({
 
           <BottomFlowerControls 
             width={width}
-            onMirror={onMirror || (() => console.log('Отзеркаливанеи цветка'))}
-            onDuplicate={onDuplicate || (() => console.log('Копирование цветка'))}
-            onReset={onReset || (() => console.log('Сброс настроек цветка'))}
+            onMirror={onMirror}
+            onDuplicate={onDuplicate}
+            onReset={onReset}
             onDelete={onDelete}
           />
         </div>

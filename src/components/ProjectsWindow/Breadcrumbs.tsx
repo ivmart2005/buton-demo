@@ -6,6 +6,7 @@ interface BreadcrumbsProps {
   onGoBack: () => void;
 }
 
+// "хлебные крошки" - визуал навигации типа "папка/папка/папка/букет" в окне преоктов
 export const Breadcrumbs = ({ path, onNavigate, onGoBack }: BreadcrumbsProps) => {
   const parts = path === '/' ? [] : path.split('/').filter(p => p);
 
@@ -14,7 +15,6 @@ export const Breadcrumbs = ({ path, onNavigate, onGoBack }: BreadcrumbsProps) =>
       <button 
         className="breadcrumb-back"
         onClick={onGoBack}
-        title="Назад"
       >
         ←
       </button>
@@ -31,7 +31,7 @@ export const Breadcrumbs = ({ path, onNavigate, onGoBack }: BreadcrumbsProps) =>
         return (
           <span key={currentPath} className="breadcrumb-separator">
             ›
-            <button 
+            <button
               className="breadcrumb-item"
               onClick={() => onNavigate(currentPath)}
             >

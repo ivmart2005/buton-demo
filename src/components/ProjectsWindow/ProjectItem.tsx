@@ -11,10 +11,11 @@ interface ProjectItemProps {
   onRenameCancel?: () => void;
   onClick: () => void;
   onDoubleClick?: () => void;
-  onContextMenu: (e: React.MouseEvent) => void;
+  onContextMenu: (event: React.MouseEvent) => void;
 }
 
-export const ProjectItem = ({ 
+// папка или файл на холсте
+export const ProjectItem = ({
   item, 
   isRenaming,
   onRenameComplete,
@@ -27,14 +28,13 @@ export const ProjectItem = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const isFolder = item.type === 'folder';
 
-  useEffect(() => {
+  useEffect(() => { // переименование
     if (isRenaming) {
       const nameToShow = isFolder ? item.name : item.name.replace(/\.json$/, '');
       setTempName(nameToShow);
-      
       setTimeout(() => {
         inputRef.current?.focus();
-        inputRef.current?.select();
+        inputRef.current?.select(); // выбор поля и начало печати в нем
       }, 50);
     }
   }, [isRenaming, item.name, isFolder]);
@@ -42,12 +42,10 @@ export const ProjectItem = ({
   const handleSaveRename = async () => {
     const trimmed = tempName.trim();
     const oldCleanName = isFolder ? item.name : item.name.replace(/\.json$/, '');
-
     if (!trimmed || trimmed === oldCleanName) {
       onRenameCancel?.();
       return;
     }
-
     try {
       const success = await window.electronAPI.renameProjectItem(item.path, trimmed);
       if (success) {
@@ -55,25 +53,29 @@ export const ProjectItem = ({
       } else {
         onRenameCancel?.();
       }
-    } catch (err) {
-      console.error("Ошибка при переименовании:", err);
+    } catch (error) {
+      console.error("ProjectItem.tsx - ошибка при переименовании:", error);
       onRenameCancel?.();
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleSaveRename();
-    if (e.key === 'Escape') onRenameCancel?.();
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter')
+      handleSaveRename();
+    if (event.key === 'Escape')
+      onRenameCancel?.();
   };
 
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isRenaming) return;
+  // клики не должны проваливаться под окно проектов
+  const handleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (isRenaming)
+      return;
     onClick();
   };
 
-  const handleDoubleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDoubleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
     if (onDoubleClick && !isFolder && !isRenaming) {
       onDoubleClick();
     }
@@ -88,17 +90,17 @@ export const ProjectItem = ({
           ref={inputRef}
           className="project-item-rename-input"
           value={tempName}
-          onChange={(e) => setTempName(e.target.value)}
+          onChange={(event) => setTempName(event.target.value)}
           onBlur={handleSaveRename}
           onKeyDown={handleKeyDown}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
         />
       );
     }
     const displayName = isFolder ? item.name : item.name.replace(/\.json$/, '');
     return <div className={isFolder ? "folder-name" : "file-header"}>{displayName}</div>;
   };
-
+  
   return (
     <div 
       className={`project-item ${item.type} ${isRenaming ? 'renaming' : ''}`}

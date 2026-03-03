@@ -44,16 +44,7 @@ export const useProjects = () => {
     }
   };
 
-  const createFolder = async (folderName: string) => {
-    if (!window.electronAPI?.createProjectFolder) return;
-
-    try {
-      await window.electronAPI.createProjectFolder(currentPath, folderName);
-      await loadStructure(currentPath);
-    } catch (err: any) {
-      throw err;
-    }
-  };
+  const createFolder = async (folderName: string) => {  };
 
   return {
     currentPath,

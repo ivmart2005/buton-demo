@@ -2,17 +2,17 @@ import './BottomFlowerControls.css';
 
 interface BottomFlowerControlsProps {
   width: number;
-  onMirror: () => void;
-  onDuplicate: () => void;
-  onReset: () => void;
+  onMirror?: () => void;
+  onDuplicate?: () => void;
+  onReset?: () => void;
   onDelete: () => void;
 }
 
 export const BottomFlowerControls = ({ 
   width, 
-  onMirror,
-  onDuplicate, 
-  onReset, 
+  onMirror = () => {},
+  onDuplicate = () => {}, 
+  onReset = () => {}, 
   onDelete 
 }: BottomFlowerControlsProps) => {
   const buttonSize = Math.min(40, (width - 20) / 4);

@@ -14,54 +14,31 @@ export const BouquetControls = () => {
     setCurrentProject,
     resetProject
   } = useFlowersContext();
-
   const [showProjects, setShowProjects] = useState(false);
   const [projectsMode, setProjectsMode] = useState<'load' | 'save'>('load');
   const { isOpen, open, close } = useModal();
-
   const [pendingAction, setPendingAction] = useState<'new' | 'load' | null>(null);
 
   useEffect(() => {
     const handleBouquetLoaded = (event: CustomEvent) => {
-      
-      if (event.detail && event.detail.flowers) {
-        setFlowers(event.detail.flowers);
+      if (event.detail && event.detail.flowers) { // если поступил полный проект
+        setFlowers(event.detail.flowers); // отрисовка цветов
         if (event.detail.project) {
           setCurrentProject(event.detail.project);
-          setIsDirty(false); 
+          setIsDirty(false);
         }
-      } 
-      else if (Array.isArray(event.detail)) {
+      }
+      else if (Array.isArray(event.detail)) { // пустой букет
         setFlowers(event.detail);
       }
     };
-
     window.addEventListener('bouquet-loaded', handleBouquetLoaded as EventListener);
-    
-    const checkLoadedBouquet = () => {
-      const loaded = (window as any).__loadedBouquet;
-      if (loaded) {
-        if (loaded.flowers) {
-          setFlowers(loaded.flowers);
-          if (loaded.project) {
-            setCurrentProject(loaded.project);
-            setIsDirty(false);
-          }
-        } else if (Array.isArray(loaded)) {
-          setFlowers(loaded);
-        }
-        delete (window as any).__loadedBouquet;
-      }
-    };
-    
-    const interval = setInterval(checkLoadedBouquet, 1000);
-    
     return () => {
       window.removeEventListener('bouquet-loaded', handleBouquetLoaded as EventListener);
-      clearInterval(interval);
     };
   }, [setFlowers, setCurrentProject, setIsDirty]);
 
+  // сохраение с именем
   const handleSaveAs = () => {
     setProjectsMode('save');
     setShowProjects(true);
@@ -69,12 +46,13 @@ export const BouquetControls = () => {
     setPendingAction(null);
   };
 
+  // опция "не сохранять"
   const handleDiscard = () => {    
     resetProject ? resetProject() : (() => {
       setFlowers([]);
       setCurrentProject(null);
       setIsDirty(false);
-    })();
+    }) ();
 
     if (pendingAction === 'load') {
       setProjectsMode('load');
@@ -85,6 +63,7 @@ export const BouquetControls = () => {
     close();
   };
 
+  // кнопка "создать новый букет"
   const handleNewBouquetClick = () => {
     if (isDirty) {
       setPendingAction('new');
@@ -98,6 +77,7 @@ export const BouquetControls = () => {
     }
   };
 
+  // сохранение по пути
   const handleDirectSave = async () => {
     if (currentProject && currentProject.path) {
       try {
@@ -113,32 +93,28 @@ export const BouquetControls = () => {
           saturation: (flower as any).saturation ?? 1.0,
           isFlipped: (flower as any).isFlipped ?? false
         }));
-
         await window.electronAPI.saveBouquetToPath({
           filePath: currentProject.path,
           flowers: flowersToSave as any
         });
-        
         setIsDirty(false);
-
         if (pendingAction === 'new') {
            resetProject ? resetProject() : (() => { setFlowers([]); setCurrentProject(null); })();
         } else if (pendingAction === 'load') {
            setProjectsMode('load');
            setShowProjects(true);
         }
-
         setPendingAction(null);
         close();
       } catch (error: any) {
-        console.error("!!! BouquetControls: Ошибка тихого сохранения:", error);
+        console.error("BouquetControls - ошибка тихого сохранения:", error);
         handleSaveAs(); 
       }
     } else {
       handleSaveAs();
     }
   };
-
+  // клик на "Мои проекты"
   const handleMyProjectsClick = () => {
     if (isDirty) {
       setPendingAction('load');

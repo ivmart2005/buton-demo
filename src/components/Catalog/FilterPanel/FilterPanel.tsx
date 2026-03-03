@@ -38,6 +38,7 @@ export const FilterPanel = ({
     { colorName: "тёмно-зелёный", colorRgb: "008E5B", colorId: 11, xMult: 0.153, yMult: 0.285, checked: true },
     { colorName: "светло-зелёный", colorRgb: "8CBB26", colorId: 12, xMult: 0.304, yMult: 0.142, checked: true }
   ]);
+  const isElectron = typeof window !== 'undefined' && !!(window as any).electronAPI;
 
   useEffect(() => { 
     const selectedColors = segments
@@ -81,21 +82,22 @@ export const FilterPanel = ({
           onDeselectAll={deselectAll}
         />
         {/* кнопка открытия фильтров */}
-        <div className="types-filter-container">
-          <FlowerTypesFilterButton
-            onClick={onOpenTypesWindow} 
-            isShrunk={isAnyTypeSelected} 
-          />
-          {/* если выбраны фильтры по типам, то появляется кнопка "сбросить" */}
-          {isAnyTypeSelected && (
-            <button
-              className="btn-reset-types-quick"
-              onClick={onResetTypes}
-            >
-              Сбросить
-            </button>
-          )}
-        </div>
+        {isElectron && (
+          <div className="types-filter-container">
+            <FlowerTypesFilterButton
+              onClick={onOpenTypesWindow} 
+              isShrunk={isAnyTypeSelected} 
+            />
+            {isAnyTypeSelected && (
+              <button
+                className="btn-reset-types-quick"
+                onClick={onResetTypes}
+              >
+                Сбросить
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -20,14 +20,14 @@ export const useFlowerDrag = (
       if (!currentCanvas) continue;
 
       const rect = currentCanvas.getBoundingClientRect();
-      const ctx = currentCanvas.getContext('2d');
-      if (!ctx) continue;
+      const context = currentCanvas.getContext('2d');
+      if (!context) continue;
 
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
       if (x >= 0 && y >= 0 && x < rect.width && y < rect.height) {
-        const pixel = ctx.getImageData(x, y, 1, 1).data;
+        const pixel = context.getImageData(x, y, 1, 1).data;
         if (pixel[3] > 10) {
           if (currentFlower.id === flower.id) {
             setIsDragging(true);

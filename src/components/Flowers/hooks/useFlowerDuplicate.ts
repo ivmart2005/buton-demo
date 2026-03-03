@@ -5,7 +5,6 @@ export const useFlowerDuplicate = () => {
   const { flowers, setFlowers } = useFlowersContext();
 
   const duplicateFlower = (flowerId: string) => {
-    console.log(`Duplicate flower ${flowerId}`);
     const originalFlower = flowers.find(f => f.id === flowerId);
     if (!originalFlower) return;
 
