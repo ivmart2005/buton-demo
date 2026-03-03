@@ -1,6 +1,0 @@
-@import './MainLayout.css';
-@import './Explorer.css';
-@import './ProjectItems.css';
-@import './Breadcrumbs.css';
-
-.save-stats, .project-item-info { display: none !important; }
