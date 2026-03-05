@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { SearchInput } from './SearchInput';
 import { ColorWheel } from './ColorWheel';
 import { ColorWheelControls } from './ColorWheelControls';
@@ -7,6 +7,7 @@ import { FlowerTypesFilterButton } from './FlowerTypesFilter';
 import './FilterPanel.css';
 
 interface FilterPanelProps {
+  isOpen: boolean;
   width?: number;
   onColorSelectionChange?: (selectedColors: number[]) => void;
   onSearch?: (query: string) => void;
@@ -15,7 +16,8 @@ interface FilterPanelProps {
   onResetTypes?: () => void;
 }
 
-export const FilterPanel = ({ 
+export const FilterPanel = ({
+  isOpen,
   width = 300,
   onColorSelectionChange = () => {},
   onSearch = () => {},
@@ -23,6 +25,7 @@ export const FilterPanel = ({
   isAnyTypeSelected = false,
   onResetTypes = () => {}
 }: FilterPanelProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
   // цвета взяты из круга Иттена, не убирать в БД
   const [segments, setSegments] = useState<ColorSegment[]>([
     { colorName: "жёлтый", colorRgb: "F4E500", colorId: 1, xMult: 0.5, yMult: 0.0822, checked: true },
@@ -52,6 +55,7 @@ export const FilterPanel = ({
         ? { ...segment, checked: !segment.checked }
         : segment
     ));
+    inputRef.current?.focus();
   };
 
   const selectAll = () => {
@@ -62,6 +66,15 @@ export const FilterPanel = ({
     setSegments(segments.map(s => ({ ...s, checked: false })));
   };
 
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 300); // Даем время на завершение анимации выезда
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   return (
     <div className="filter-panel" style={{ width }}>
       <div className="filter-panel-header">
@@ -70,7 +83,7 @@ export const FilterPanel = ({
       
       <div className="filter-panel-content">
         {/* поисковая строка */}
-        <SearchInput onSearch={onSearch} />
+        <SearchInput onSearch={onSearch} inputRef={inputRef} />
         <ColorWheel
           segments={segments}
           onSegmentToggle={toggleSegment}

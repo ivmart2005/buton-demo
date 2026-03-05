@@ -1,6 +1,7 @@
 .outline-edit {
   box-sizing: border-box;
   position: relative;
+  z-index: 100;
 }
 
 .outline-border {

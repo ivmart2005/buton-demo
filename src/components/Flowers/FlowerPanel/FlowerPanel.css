@@ -12,6 +12,7 @@
   overflow: visible;
   position: relative;
   margin-left: 2rem;
+  z-index: 100;
 }
 
 .flower-panel-container {

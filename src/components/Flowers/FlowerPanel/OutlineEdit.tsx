@@ -22,7 +22,6 @@ export const OutlineEdit = ({ flower, isActive, onRotationStart, isRotating }: O
         width: flower.angles.width * flower.scale + 16, // 8 + 8 = 16
         height: flower.angles.height * flower.scale + 16,
         pointerEvents: 'none', // без этого ресайз колёсиком не работает
-        zIndex: 1000,
         transform: `rotate(${flower.rotation}deg)`,
         transformOrigin: 'center center'
       }}

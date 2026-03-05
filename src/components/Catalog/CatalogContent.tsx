@@ -55,6 +55,7 @@ const CatalogContent = forwardRef<HTMLDivElement, CatalogContentProps>(
           {/* панель фильтров слева */}
           <div className="catalog-inner">
             <FilterPanel
+              isOpen={isOpen}
               onColorSelectionChange={setSelectedColors} 
               onSearch={setSearchQuery}
               onOpenTypesWindow={handleOpenTypesWindow}

@@ -59,6 +59,19 @@ export function Flower({ flower, allFlowers, setDebugInfo, updateFlower, isGloba
 
   useFlowerRender(flower, canvasRef);
 
+  const flowerWidth = flower.angles.width * flower.scale;
+  const panelWidth = 280;
+  const panelHeight = 250;
+  const offset = 40;
+  const isOverflowRight = (flower.x + flowerWidth + offset + panelWidth) > window.innerWidth;
+  const isOverflowBottom = (flower.y + panelHeight) > window.innerHeight;
+  const finalLeft = isOverflowRight 
+    ? flower.x - panelWidth - 80 
+    : flower.x + flowerWidth + 40;
+  const finalTop = isOverflowBottom 
+    ? window.innerHeight - panelHeight
+    : flower.y;
+
   // функции-обработчики кнопок для конкретного цветка
   const handleMirror = () => mirrorFlower(flower.id);
   const handleDuplicate = () => duplicateFlower(flower.id);
@@ -130,9 +143,8 @@ export function Flower({ flower, allFlowers, setDebugInfo, updateFlower, isGloba
           currentSaturation={(flower as any).saturation}
           style={{
             position: 'absolute',
-            left: flower.x + flower.angles.width * flower.scale + 40,
-            top: flower.y,
-            zIndex: 10000
+            left: finalLeft,
+            top: finalTop
           }}
         />
       )}

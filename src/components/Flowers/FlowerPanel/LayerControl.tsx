@@ -1,6 +1,6 @@
 import { useFlowersContext } from '@/contexts/FlowersContext';
 import './LayerControl.css';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 interface LayerControlProps {
   currentFlowerId: string;
@@ -14,14 +14,27 @@ export const LayerControl = ({ currentFlowerId }: LayerControlProps) => {
 
   // обработка прокрутки колёсика
   // колёсиком меняется слой выбранного цветка
+  const lastUpdate = useRef(0);
+
   const handleWheel = (event: React.WheelEvent) => {
-    event.preventDefault(); // против автоматической прокрутки страницы (неактуально)
     event.stopPropagation(); // событие мыши не пойдет на элемент ниже
+    if (Math.abs(event.deltaY) < 3) // игноририрование "Шума" на тачпаде
+      return;
+    const now = Date.now();
+    const isMouse = Math.abs(event.deltaY) >= 70;
+    const delay = isMouse ? 30 : 70;
+
+    if (now - lastUpdate.current < delay) 
+      return;
+    lastUpdate.current = now;
+
     const currentIndex = flowers.findIndex(flower => flower.id === currentFlowerId);
     if (currentIndex === -1)
       return;
+
     const deltaWheel = event.deltaY > 0 ? 1 : -1; // отслеживание направления прокрутки мыши
     const newIndex = currentIndex - deltaWheel; // сдвиг на +1 или -1
+
     if (newIndex >= 0 && newIndex < flowers.length) {
       const newFlowers = [...flowers];
       // смена местами прошлого и нового цветка в копии массива цветов

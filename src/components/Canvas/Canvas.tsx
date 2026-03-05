@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Flower } from '@/components/Flowers/Flower';
 import { useGlobalDrag } from '@/hooks/useGlobalDrag';
 import { Catalog } from '@/components/Catalog/Catalog';
@@ -24,6 +24,32 @@ export function Canvas() {
       catalogRef.current.open();
     }
   };
+
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        const factor = e.deltaY > 0 ? 0.95 : 1.05;
+
+        updateAllFlowers((flower) => {
+          const dx = flower.x - centerX;
+          const dy = flower.y - centerY;
+
+          return {
+            x: centerX + dx * factor,
+            y: centerY + dy * factor,
+            scale: (flower.scale || 1) * factor
+          };
+        });
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [updateAllFlowers]);
 
   return ( // реакт-компонент возвращается в App.tsx
     <div

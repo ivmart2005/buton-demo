@@ -12,11 +12,26 @@
   flex-direction: column;
 }
 
+.layers-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 90px;
+  background: linear-gradient(to bottom, white 0px, white 80px, transparent 100px);
+  z-index: 10;
+  pointer-events: none;
+}
+
 .layers-list {
   flex: 1;
   overflow-y: auto;
   padding: 0.625rem;
-  padding-top: 0.625rem;
+  padding-top: 80px;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
 }
 
 .empty-state {
