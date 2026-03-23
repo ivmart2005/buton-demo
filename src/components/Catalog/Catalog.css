@@ -1,0 +1,133 @@
+.catalog-button {
+  position: fixed;
+  left: -6.2rem;
+  top: 0.5rem;
+  width: 19rem;
+  height: 5rem;
+  cursor: pointer;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  transition: transform 0.2s ease;
+}
+
+
+.catalog-button-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  pointer-events: none;
+  transition: transform 0.3s ease;
+}
+
+.catalog-button-icon.plus-sign {
+  /* пусто, по умолчанию корректно */
+}
+
+.catalog-button-icon.close-sign {
+  transform: rotate(135deg);
+  /* плюс при развороте превращается в крест закрытия */
+}
+
+.catalog-container {
+  position: fixed;
+  left: -90rem;
+  top: 0;
+  height: 100vh;
+  background: #ffffff;
+  padding: 0 20px;
+  box-sizing: border-box;
+  z-index: 1000;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
+  transition: left 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  will-change: left;
+}
+
+.catalog-container.open {
+  left: 0;
+}
+
+.catalog-inner {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0px 15px 0px 5px;
+  height: calc(100vh);
+  min-width: 0;
+}
+
+.catalog-inner > * {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: 
+    opacity 0.3s ease 0.2s,
+    transform 0.3s ease 0.2s;
+}
+
+.catalog-container.open .catalog-inner > * {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.catalog-inner::-webkit-scrollbar {
+  width: 6px;
+}
+
+.catalog-inner::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.catalog-inner::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.catalog-inner::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.catalog-columns {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  min-width: 0;
+}
+
+.filter-panel {
+  min-width: 350px;
+}
+
+.flowers-list-grid {
+  min-width: 300px;
+  padding: 16px;
+}
+
+.catalog-layout {
+  display: flex;
+  height: 100%;
+}
+
+.catalog-inner {
+  display: flex;
+  height: 100%;
+}
+
+.flowers-list-wrapper {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+}
+
+.catalog-button:hover .catalog-button-icon {
+  transform: scale(1.15);
+}
+
+.catalog-button:hover .catalog-button-icon.close-sign {
+  transform: rotate(135deg) scale(1.15);
+}

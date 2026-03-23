@@ -1,0 +1,44 @@
+.bottom-controls-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.control-button {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
+  outline: none;
+  border-radius: 0.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.control-button:hover {
+  background-color: var(--green-color-transparent-15);
+}
+
+.control-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  transition: opacity 0.1s ease;
+  position: absolute;
+}
+
+.icon-pressed {
+  opacity: 0;
+}
+
+.control-button:active .control-icon:not(.icon-pressed) {
+  opacity: 0;
+}
+
+.control-button:active .icon-pressed {
+  opacity: 1;
+}

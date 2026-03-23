@@ -1,0 +1,49 @@
+import { SavedFlower } from "@/types/bouquet";
+
+// преобразование конфига букета в букет на холсте (цветок 1: id, name, colour, position..., цветок 2...)
+export const useConvertBouquet = () => {
+  const convert = async (savedFlowers: SavedFlower[]): Promise<any[]> => {
+    const convertedFlowers = [];
+    for (const savedFlower of savedFlowers) {
+      try {
+        let imageSrc: string;
+        imageSrc = await window.electronAPI.getFlowerImage(savedFlower.flowerName);
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+          img.onload = () => resolve(img);
+          img.onerror = () => reject(new Error(`useConvertBouquet.ts - ошибка загрузки: ${savedFlower.flowerName}`));
+          img.src = imageSrc;
+        });
+
+        const anglesWidth = Math.floor(img.width / 4);
+        const flower = {
+          id: Math.random().toString(36).slice(2),
+          name: savedFlower.flowerName,
+          image: img,
+          width: img.width,
+          height: img.height,
+          // "|| ..." - по умолчанию конфигурация спавна цветика на холсте
+          x: savedFlower.x || 800,
+          y: savedFlower.y || 200,
+          zIndex: savedFlower.zIndex || 0,
+          scale: savedFlower.scale || 0.7,
+          rotation: savedFlower.rotation || 0,
+          currentAngle: savedFlower.currentAngle || 0,
+          saturation: savedFlower.saturation || 1.0,
+          isFlipped: savedFlower.isFlipped || false,
+          flower_type_id: savedFlower.flower_type_id || 1,
+          angles: {
+            width: anglesWidth,
+            height: img.height
+          }
+        };
+        convertedFlowers.push(flower);
+      } catch (error) {
+      }
+    }
+
+    return convertedFlowers;
+  };
+
+  return { convert };
+};

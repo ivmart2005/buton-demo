@@ -1,0 +1,49 @@
+.color-wheel-container {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.color-wheel-image {
+  display: block;
+  border-radius: 50%;
+  user-select: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  pointer-events: none;
+}
+
+.segment-ring {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  pointer-events: none;
+  color: #ffffff;
+  transition: all 0.2s ease;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.segment-ring:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.segment-inner-circle {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background-color: currentColor;
+  border-radius: 50%;
+  pointer-events: none;
+  color: #ffffff;
+  transition: all 0.2s ease;
+  transform: translate(-50%, -50%) scale(0);
+}
+
+.segment-inner-circle.checked {
+  transform: translate(-50%, -50%) scale(1);
+}

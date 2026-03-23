@@ -1,0 +1,39 @@
+.layer-control {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  height: auto;
+  min-height: 100%;
+  background-color: transparent;
+  border-radius: 10px;
+  overflow: visible;
+  position: relative;
+}
+
+.layer-tile {
+  height: 12px;
+  width: 2rem;
+  background-color: #f4f4f4;
+  border-radius: 15px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  position: relative;
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.15)
+}
+
+.layer-tile.current {
+  background-color: #A2D40A;
+}
+
+.layer-control .layer-tile:first-child {
+  margin-top: 0;
+}
+
+.layer-control::-webkit-scrollbar {
+  display: none;
+}
+
+.layer-control {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
